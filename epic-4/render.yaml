@@ -15,12 +15,14 @@ services:
       - key: TARGET_BRANCH
         value: main
 
-      # Cloudflare R2 Configuration (Optional - for cloud storage)
-      - key: R2_ACCOUNT_ID
+      # Azure Blob Storage Configuration (Optional - for cloud storage)
+      - key: AZURE_STORAGE_CONNECTION_STRING
         sync: false
-      - key: R2_ACCESS_KEY_ID
+      - key: AZURE_STORAGE_ACCOUNT_URL
         sync: false
-      - key: R2_SECRET_ACCESS_KEY
+      - key: AZURE_STORAGE_ACCOUNT_KEY
+        sync: false
+      - key: AZURE_CONTAINER_NAME
         sync: false
       - key: DOCS_BUCKET_PATH
         sync: false

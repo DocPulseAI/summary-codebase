@@ -15,6 +15,7 @@ setup(
     extras_require={
         "gcs": ["google-cloud-storage>=2.10.0"],
         "s3": ["boto3>=1.28.0"],
-        "cloud": ["google-cloud-storage>=2.10.0", "boto3>=1.28.0"],
+        "azure": ["azure-storage-blob>=12.20.0"],
+        "cloud": ["google-cloud-storage>=2.10.0", "boto3>=1.28.0", "azure-storage-blob>=12.20.0"],
     },
 )

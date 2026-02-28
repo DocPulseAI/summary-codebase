@@ -9,3 +9,4 @@ pytest>=7.0.0
 # Optional cloud storage dependencies
 google-cloud-storage>=2.10.0
 boto3>=1.28.0
+azure-storage-blob>=12.20.0

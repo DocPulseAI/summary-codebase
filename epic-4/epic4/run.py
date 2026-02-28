@@ -44,8 +44,8 @@ def main():
                     # This gives us: "<project_id>/<commit_hash>/docs/summary/"
                     summary_path_relative = docs_bucket_path + "summary/"
                     
-                    # Construct full R2 URI: r2://<bucket_name>/<path>
-                    summary_bucket_path = f"r2://{config.R2_BUCKET_NAME}/{summary_path_relative}"
+                    # Construct full Azure URI: az://<container_name>/<path>
+                    summary_bucket_path = f"az://{config.AZURE_CONTAINER_NAME}/{summary_path_relative}"
                     logger.info(f"Derived summary_bucket_path: {summary_bucket_path}")
                 else:
                     logger.error("docs_bucket_path not found in doc_snapshot.json")
