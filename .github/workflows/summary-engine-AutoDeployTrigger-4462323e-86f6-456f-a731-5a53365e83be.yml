@@ -71,20 +71,42 @@ jobs:
 
             echo "Latest revision: $LATEST_REVISION"
 
-            RUNNING_STATE=$(az containerapp revision show \
-              --name summary-engine \
-              --resource-group DocPulse \
-              --revision "$LATEST_REVISION" \
-              --query 'properties.runningState' \
-              -o tsv)
-
-            echo "Revision running state: $RUNNING_STATE"
-
             az containerapp show \
               --name summary-engine \
               --resource-group DocPulse \
               --query 'properties.latestRevisionFqdn' \
               -o tsv
+
+            RUNNING_STATE=""
+            for i in {1..30}; do
+              RUNNING_STATE=$(az containerapp revision show \
+                --name summary-engine \
+                --resource-group DocPulse \
+                --revision "$LATEST_REVISION" \
+                --query 'properties.runningState' \
+                -o tsv)
+
+              HEALTH_STATE=$(az containerapp revision show \
+                --name summary-engine \
+                --resource-group DocPulse \
+                --revision "$LATEST_REVISION" \
+                --query 'properties.healthState' \
+                -o tsv)
+
+              echo "Attempt $i/30 -> runningState=$RUNNING_STATE, healthState=$HEALTH_STATE"
+
+              if [ "$RUNNING_STATE" = "Running" ]; then
+                echo "Revision is running."
+                break
+              fi
+
+              if [ "$RUNNING_STATE" = "ActivationFailed" ] || [ "$RUNNING_STATE" = "Failed" ]; then
+                echo "Revision entered terminal failure state: $RUNNING_STATE"
+                break
+              fi
+
+              sleep 10
+            done
 
             if [ "$RUNNING_STATE" != "Running" ]; then
               echo "Revision is not running. Dumping revision list and recent logs..."
