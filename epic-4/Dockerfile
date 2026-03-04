@@ -38,9 +38,8 @@ RUN mkdir -p artifacts/docs artifacts/summaries artifacts/logs
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Expose port for FastAPI
+# Expose port for FastAPI (health/optional API mode)
 EXPOSE 8000
 
-# Default command runs the API server
-# Can be overridden to run the CLI: docker run epic4 python -m epic4.run ...
-CMD ["uvicorn", "epic4.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Default command runs EPIC-4 queue worker.
+CMD ["python", "-m", "epic4.service_bus_worker"]

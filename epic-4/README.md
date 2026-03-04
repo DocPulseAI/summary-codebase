@@ -68,6 +68,25 @@ python -m epic4.run \
     --commit <commit_sha>
 ```
 
+### Azure Service Bus Worker
+
+```bash
+python -m epic4.service_bus_worker --queue "$EPIC4_QUEUE_NAME"
+```
+
+Worker message format (JSON object):
+
+```json
+{
+  "impact_report_path": "artifacts/impact_report.json",
+  "drift_report_path": "artifacts/drift_report.json",
+  "doc_snapshot_path": "artifacts/doc_snapshot.json",
+  "commit_sha": "63d36c2b",
+  "output_dir": "artifacts/summaries",
+  "summary_bucket_path": "quiz-app-java/63d36c2b/docs/summary/"
+}
+```
+
 ### Command Line Arguments
 
 | Argument | Description | Default |
@@ -141,6 +160,9 @@ Example: `quiz-app-java/63d36c2b/docs/summary/`
 | `R2_ACCESS_KEY_ID` | R2 Access Key ID | Yes (for R2) | - |
 | `R2_SECRET_ACCESS_KEY` | R2 Secret Access Key | Yes (for R2) | - |
 | `R2_BUCKET_NAME` | R2 Bucket Name | No | `ci-living-docs` |
+| `SERVICE_BUS_CONNECTION_STRING` | Azure Service Bus connection string | Yes (for queue worker) | - |
+| `EPIC4_QUEUE_NAME` | Queue to consume summary jobs from | Yes (for queue worker) | - |
+| `EPIC4_RESPONSE_QUEUE_NAME` | Optional queue to publish job results | No | - |
 | `ARTIFACTS_DIR` | Local artifacts directory | No | `artifacts` |
 | `COMMIT_SHA` | Commit SHA (override) | No | From doc_snapshot.json |
 

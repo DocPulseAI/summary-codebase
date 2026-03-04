@@ -1,93 +1,114 @@
 import argparse
+import json
 import os
+from typing import Any, Dict, Optional
+from urllib.parse import urlparse
+
 from epic4.config import config
-from epic4.utils import logger
-from epic4.summary import generate_summary
 from epic4.storage_client import StorageClient
+from epic4.summary import generate_summary_artifacts
+from epic4.utils import logger
 
-def main():
-    parser = argparse.ArgumentParser(description="Epic-4 CI Automation")
-    parser.add_argument("--impact", default=config.IMPACT_REPORT_PATH, help="Path to impact report")
-    parser.add_argument("--drift", default=config.DRIFT_REPORT_PATH, help="Path to drift report")
-    parser.add_argument("--docs", default=config.DOCS_DIR, help="Path to docs directory")
-    parser.add_argument("--commit", default=config.COMMIT_SHA, help="Commit SHA")
-    parser.add_argument("--mode", default="SUMMARY_ONLY_MODE", help="Execution mode: FULL_MODE or SUMMARY_ONLY_MODE")
 
-    args = parser.parse_args()
+class SummaryRunError(Exception):
+    """Raised when a summary run cannot complete successfully."""
 
-    # 1. Validation & Input Loading
-    # Temporarily force summary-only behavior.
-    effective_mode = "SUMMARY_ONLY_MODE"
 
-    # Load doc_snapshot.json to get dynamic bucket path and project_id
-    docs_bucket_path = None
-    project_id = None
-    commit_hash = args.commit
-    summary_local_dir = config.SUMMARIES_DIR  # Default fallback
-    summary_bucket_path = None
-    
-    if os.path.exists(config.DOC_SNAPSHOT_PATH):
-        try:
-            import json
-            with open(config.DOC_SNAPSHOT_PATH, 'r') as f:
-                snapshot = json.load(f)
-                # Extract project_id and commit
-                project_id = snapshot.get("project_id")
-                commit_from_snapshot = snapshot.get("commit")
-                
-                # Extract docs_bucket_path from snapshot (REQUIRED)
-                # Format: "<project_id>/<commit_hash>/docs/"
-                docs_bucket_path = snapshot.get("docs_bucket_path")
-                
-                if docs_bucket_path:
-                    # Derive summary_bucket_path as: docs_bucket_path + "summary/"
-                    # This gives us: "<project_id>/<commit_hash>/docs/summary/"
-                    summary_path_relative = docs_bucket_path + "summary/"
-                    
-                    # Construct full Azure URI: az://<container_name>/<path>
-                    summary_bucket_path = f"az://{config.AZURE_CONTAINER_NAME}/{summary_path_relative}"
-                    logger.info(f"Derived summary_bucket_path: {summary_bucket_path}")
-                else:
-                    logger.error("docs_bucket_path not found in doc_snapshot.json")
-                    raise ValueError("docs_bucket_path is required in doc_snapshot.json")
-                
-                if project_id:
-                    logger.info(f"Loaded project_id from snapshot: {project_id}")
-                else:
-                    logger.warning("project_id not found in doc_snapshot.json")
-                
-                # Use commit from snapshot if available
-                if commit_from_snapshot:
-                    commit_hash = commit_from_snapshot
-                    logger.info(f"Using commit from snapshot: {commit_hash}")
-                    
-        except Exception as e:
-            logger.error(f"Failed to load doc_snapshot.json: {e}")
-            raise
+def _load_doc_snapshot(snapshot_path: str) -> Dict[str, Any]:
+    if not os.path.exists(snapshot_path):
+        raise FileNotFoundError(f"doc_snapshot.json is required at {snapshot_path}")
+
+    with open(snapshot_path, "r") as f:
+        snapshot = json.load(f)
+
+    if not isinstance(snapshot, dict):
+        raise ValueError("doc_snapshot.json must contain a JSON object")
+
+    return snapshot
+
+
+def _derive_runtime_values(
+    snapshot: Dict[str, Any],
+    commit_override: str,
+    summary_bucket_path_override: str = "",
+) -> Dict[str, str]:
+    docs_bucket_path = snapshot.get("docs_bucket_path")
+    if not docs_bucket_path:
+        raise ValueError("docs_bucket_path is required in doc_snapshot.json")
+
+    docs_bucket_path = str(docs_bucket_path)
+    if not docs_bucket_path.endswith("/"):
+        docs_bucket_path += "/"
+
+    project_id = str(snapshot.get("project_id", ""))
+    commit_hash = str(snapshot.get("commit") or commit_override or "").strip()
+    if not commit_hash:
+        raise ValueError("commit is required in message payload, CLI args, or doc_snapshot.json")
+
+    if summary_bucket_path_override:
+        summary_bucket_path = summary_bucket_path_override
     else:
-        logger.error(f"doc_snapshot.json not found at {config.DOC_SNAPSHOT_PATH}")
-        raise FileNotFoundError(f"doc_snapshot.json is required at {config.DOC_SNAPSHOT_PATH}")
+        summary_bucket_path = docs_bucket_path + "summary/"
 
-    logger.info(f"Starting Epic-4 execution for commit {commit_hash} in mode {effective_mode}")
+    summary_bucket_path = str(summary_bucket_path)
+    if summary_bucket_path.startswith(("az://", "azure://", "s3://", "gs://", "r2://")):
+        parsed = urlparse(summary_bucket_path)
+        key_path = parsed.path.lstrip("/")
+        if not key_path:
+            raise ValueError("summary_bucket_path URI must include a non-empty path")
+        summary_bucket_uri = summary_bucket_path
+        summary_bucket_path = key_path
+    else:
+        if not summary_bucket_path.endswith("/"):
+            summary_bucket_path += "/"
+        summary_bucket_uri = f"az://{config.AZURE_CONTAINER_NAME}/{summary_bucket_path}"
 
-    storage_client = StorageClient()
+    return {
+        "project_id": project_id,
+        "commit_hash": commit_hash,
+        "docs_bucket_path": docs_bucket_path,
+        "summary_bucket_path": summary_bucket_path,
+        "summary_bucket_uri": summary_bucket_uri,
+    }
 
-    # 2. Generate Summary with fault tolerance
+
+def run_summary_pipeline(
+    impact_path: str,
+    drift_path: str,
+    commit_sha: str = "",
+    output_dir: Optional[str] = None,
+    snapshot_path: Optional[str] = None,
+    storage_client: Optional[StorageClient] = None,
+    summary_bucket_path_override: str = "",
+) -> Dict[str, Any]:
+    effective_snapshot_path = snapshot_path or config.DOC_SNAPSHOT_PATH
+    effective_output_dir = output_dir or config.SUMMARIES_DIR
+
+    snapshot = _load_doc_snapshot(effective_snapshot_path)
+    runtime = _derive_runtime_values(snapshot, commit_sha, summary_bucket_path_override)
+
+    commit_hash = runtime["commit_hash"]
+    summary_bucket_uri = runtime["summary_bucket_uri"]
+
+    logger.info(f"Starting Epic-4 execution for commit {commit_hash} in mode SUMMARY_ONLY_MODE")
+
     summary_md_path = ""
     summary_json_path = ""
-    
     try:
-        summary_md_path, summary_json_path = generate_summary(args.impact, args.drift, commit_hash, summary_local_dir, snapshot)
-        with open(summary_md_path, 'r') as f:
-            summary_content = f.read()
+        summary_md_path, summary_json_path = generate_summary_artifacts(
+            impact_path,
+            drift_path,
+            commit_hash,
+            effective_output_dir,
+            snapshot,
+        )
         logger.info(f"Summary generated successfully at {summary_md_path}")
     except Exception as e:
         logger.error(f"Failed to generate summary: {e}")
-        # Create error summary for partial artifact preservation
-        summary_md_path = os.path.join(summary_local_dir, "summary.md")
-        summary_json_path = os.path.join(summary_local_dir, "summary.json")
-        os.makedirs(summary_local_dir, exist_ok=True)
-        
+        summary_md_path = os.path.join(effective_output_dir, "summary.md")
+        summary_json_path = os.path.join(effective_output_dir, "summary.json")
+        os.makedirs(effective_output_dir, exist_ok=True)
+
         summary_content = f"""# Change Summary - Generation Failed
 
 **Commit SHA:** `{commit_hash}`
@@ -104,50 +125,58 @@ This is a degraded artifact. Please check the impact and drift reports manually.
 ---
 *Generated by Epic-4 Automation*
 """
-        with open(summary_md_path, 'w') as f:
+
+        with open(summary_md_path, "w") as f:
             f.write(summary_content)
-            
-        with open(summary_json_path, 'w') as f:
-            import json
+
+        with open(summary_json_path, "w") as f:
             json.dump({"error": str(e), "status": "ERROR", "commit_sha": commit_hash}, f)
-            
+
         logger.info(f"Created error summary at {summary_md_path}")
 
-    # 3. Upload summary artifacts to cloud storage
-    if summary_bucket_path:
-        logger.info(f"Uploading summary artifacts to {summary_bucket_path}")
-        upload_success_md = storage_client.upload_file(summary_md_path, summary_bucket_path)
-        upload_success_json = storage_client.upload_file(summary_json_path, summary_bucket_path)
-        
-        if upload_success_md and upload_success_json:
-            logger.info("Summary artifacts uploaded successfully")
-        else:
-            logger.error("Failed to upload one or more summary artifacts")
-            raise RuntimeError("Summary upload failed")
-    else:
-        logger.error("No summary_bucket_path available for upload")
-        raise ValueError("summary_bucket_path is required for upload")
+    storage = storage_client or StorageClient()
+    logger.info(f"Uploading summary artifacts to {summary_bucket_uri}")
+    upload_success_md = storage.upload_file(summary_md_path, summary_bucket_uri)
+    upload_success_json = storage.upload_file(summary_json_path, summary_bucket_uri)
 
-    # 4. Emit response payload
-    # Return the relative path (without scheme) as per specification
-    summary_path_for_response = docs_bucket_path + "summary/" if docs_bucket_path else summary_bucket_path
-    
-    response = {
+    if not (upload_success_md and upload_success_json):
+        raise SummaryRunError("Summary upload failed")
+
+    logger.info("Summary artifacts uploaded successfully")
+
+    return {
         "status": "success",
-        "project_id": project_id,
+        "project_id": runtime["project_id"],
         "commit": commit_hash,
-        "summary_bucket_path": summary_path_for_response,
-        "generated_files": [
-            "summary.md",
-            "summary.json"
-        ]
+        "summary_bucket_path": runtime["summary_bucket_path"],
+        "generated_files": ["summary.md", "summary.json"],
     }
 
-    try:
-        import json
-        print(json.dumps(response))
-    except Exception:
-        print(response)
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Epic-4 CI Automation")
+    parser.add_argument("--impact", default=config.IMPACT_REPORT_PATH, help="Path to impact report")
+    parser.add_argument("--drift", default=config.DRIFT_REPORT_PATH, help="Path to drift report")
+    parser.add_argument("--commit", default=config.COMMIT_SHA, help="Commit SHA override")
+    parser.add_argument("--snapshot", default=config.DOC_SNAPSHOT_PATH, help="Path to doc_snapshot.json")
+    parser.add_argument("--output-dir", default=config.SUMMARIES_DIR, help="Path to generated summaries")
+    parser.add_argument(
+        "--summary-bucket-path",
+        default="",
+        help="Optional override for summary path (relative path or full URI)",
+    )
+
+    args = parser.parse_args()
+
+    response = run_summary_pipeline(
+        impact_path=args.impact,
+        drift_path=args.drift,
+        commit_sha=args.commit,
+        output_dir=args.output_dir,
+        snapshot_path=args.snapshot,
+        summary_bucket_path_override=args.summary_bucket_path,
+    )
+    print(json.dumps(response))
 
 
 if __name__ == "__main__":

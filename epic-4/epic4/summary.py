@@ -67,9 +67,17 @@ class SummaryGenerator:
         
         # Extract analysis summary
         analysis_summary = impact_data.get("analysis_summary", {})
-        severity = analysis_summary.get("highest_severity", "UNKNOWN")
-        total_files = analysis_summary.get("total_files", 0)
-        breaking_changes = analysis_summary.get("breaking_changes_detected", False)
+        severity = (
+            analysis_summary.get("highest_severity")
+            or analysis_summary.get("severity")
+            or impact_data.get("severity")
+            or "UNKNOWN"
+        )
+        changed_files = impact_data.get("changed_files", [])
+        total_files = analysis_summary.get("total_files", len(changed_files))
+        breaking_changes = bool(
+            analysis_summary.get("breaking_changes_detected", impact_data.get("breaking_changes", False))
+        )
         
         # Extract commit metadata from doc_snapshot if available
         commit_metadata = {}
@@ -89,8 +97,7 @@ class SummaryGenerator:
             commit_metadata = {"raw": commit_metadata}
         
         # Extract changed files and affected packages
-        changed_files = []
-        affected_symbols = impact_data.get("affected_packages", [])
+        affected_symbols = impact_data.get("affected_packages") or impact_data.get("affected_symbols", [])
         
         # Extract API impact
         api_contract = impact_data.get("api_contract", {})
@@ -268,6 +275,18 @@ class SummaryGenerator:
 
         return template
 
-def generate_summary(impact_path, drift_path, commit_sha, output_dir, doc_snapshot=None):
+def generate_summary_artifacts(impact_path, drift_path, commit_sha, output_dir, doc_snapshot=None):
     generator = SummaryGenerator(impact_path, drift_path, commit_sha, output_dir, doc_snapshot)
     return generator.generate()
+
+
+def generate_summary(impact_path, drift_path, commit_sha, output_dir, doc_snapshot=None):
+    # Backward-compatible return type: markdown path only.
+    output_path_md, _ = generate_summary_artifacts(
+        impact_path,
+        drift_path,
+        commit_sha,
+        output_dir,
+        doc_snapshot,
+    )
+    return output_path_md

@@ -39,6 +39,11 @@ class Config:
     AZURE_STORAGE_ACCOUNT_KEY: str = os.getenv("AZURE_STORAGE_ACCOUNT_KEY", "")
     AZURE_CONTAINER_NAME: str = os.getenv("AZURE_CONTAINER_NAME", "ci-living-docs")
 
+    # Azure Service Bus configuration
+    SERVICE_BUS_CONNECTION_STRING: str = os.getenv("SERVICE_BUS_CONNECTION_STRING", "")
+    EPIC4_QUEUE_NAME: str = os.getenv("EPIC4_QUEUE_NAME", "")
+    EPIC4_RESPONSE_QUEUE_NAME: str = os.getenv("EPIC4_RESPONSE_QUEUE_NAME", "")
+
 
     @classmethod
     def validate(cls, require_git: bool = True):
