@@ -31,6 +31,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Copy source code for runtime reference (if needed, though installed as package)
 COPY epic4/ ./epic4/
+COPY application.py ./application.py
 # Create artifacts directory structure required by the app
 RUN mkdir -p artifacts/docs artifacts/summaries artifacts/logs
 
