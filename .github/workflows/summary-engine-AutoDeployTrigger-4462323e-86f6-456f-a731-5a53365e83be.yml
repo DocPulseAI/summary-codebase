@@ -1,0 +1,49 @@
+name: Trigger auto deployment for summary-engine
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ epic-4 ]
+    paths:
+    - '**'
+    - '.github/workflows/summary-engine-AutoDeployTrigger-4462323e-86f6-456f-a731-5a53365e83be.yml'
+
+  # Allow manual trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+      contents: read #Required when GH token is used to authenticate with private repo
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.SUMMARYENGINE_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.SUMMARYENGINE_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.SUMMARYENGINE_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v2
+        with:
+          appSourcePath: ${{ github.workspace }}
+          _dockerfilePathKey_: _dockerfilePath_
+          _targetLabelKey_: _targetLabel_
+          registryUrl: docpulseresgistry.azurecr.io
+          registryUsername: ${{ secrets.SUMMARYENGINE_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.SUMMARYENGINE_REGISTRY_PASSWORD }}
+          containerAppName: summary-engine
+          resourceGroup: DocPulse
+          imageToBuild: docpulseresgistry.azurecr.io/summary-engine:${{ github.sha }}
+          _buildArgumentsKey_: |
+            _buildArgumentsValues_
+
+
