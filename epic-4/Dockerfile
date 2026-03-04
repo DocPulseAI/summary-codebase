@@ -42,5 +42,5 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Expose port for FastAPI (health/optional API mode)
 EXPOSE 8000
 
-# Default command runs EPIC-4 queue worker.
-CMD ["python", "-m", "epic4.service_bus_worker"]
+# Default command runs FastAPI app for Container Apps.
+CMD ["uvicorn", "application:app", "--host", "0.0.0.0", "--port", "8000"]
