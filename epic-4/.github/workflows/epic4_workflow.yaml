@@ -69,9 +69,7 @@ jobs:
           context: ${{ github.workspace }}
           file: Dockerfile
           push: true
-          tags: |
-            docpulseresgistry.azurecr.io/drift-detect:latest
-            docpulseresgistry.azurecr.io/drift-detect:${{ github.sha }}
+          tags: docpulseresgistry.azurecr.io/drift-detect:latest
 
       - name: Deploy to Azure Container Apps
         uses: azure/CLI@v1
@@ -84,7 +82,7 @@ jobs:
               --server docpulseresgistry.azurecr.io \
               --username ${{ secrets.EPIC4_REGISTRY_USERNAME }} \
               --password ${{ secrets.EPIC4_REGISTRY_PASSWORD }}
-            
+
             echo "Updating environment variables..."
             az containerapp update \
               --name drift-detect \
@@ -97,14 +95,14 @@ jobs:
                 DOCS_BUCKET_PATH=${{ secrets.DOCS_BUCKET_PATH }} \
                 SERVICE_BUS_CONNECTION_STRING=${{ secrets.SERVICE_BUS_CONNECTION_STRING }} \
                 EPIC4_QUEUE_NAME=${{ secrets.EPIC4_QUEUE_NAME }}
-            
+
             echo "Deploying to Container App with latest image..."
             az containerapp update \
               --name drift-detect \
               --resource-group DocPulse \
               --image docpulseresgistry.azurecr.io/drift-detect:latest \
               --revision-suffix "r$(date +%s)"
-            
+
             echo "Verifying deployment..."
             az containerapp show \
               --name drift-detect \
