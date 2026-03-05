@@ -32,7 +32,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Copy source code for runtime reference (if needed, though installed as package)
 COPY epic4/ ./epic4/
 COPY application.py ./application.py
-COPY service_bus_consumer.py ./service_bus_consumer.py
 # Create artifacts directory structure required by the app
 RUN mkdir -p artifacts/docs artifacts/summaries artifacts/logs
 
@@ -40,7 +39,8 @@ RUN mkdir -p artifacts/docs artifacts/summaries artifacts/logs
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Queue consumer container does not expose an HTTP endpoint.
+# Expose HTTP port for FastAPI
+EXPOSE 8000
 
-# Run Service Bus queue consumer
-CMD ["python", "-u", "service_bus_consumer.py"]
+# Run FastAPI application
+CMD ["uvicorn", "epic4.api:app", "--host", "0.0.0.0", "--port", "8000"]
