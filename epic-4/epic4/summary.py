@@ -3,6 +3,7 @@ import os
 from typing import Dict, Any, List, Tuple, Optional
 from epic4.config import config
 from epic4.utils import logger
+from epic4.artifact_normalizer import normalize_repository_state, SummaryValidationError
 
 class SummaryGenerator:
     def __init__(self, impact_report_path: str, drift_report_path: str, commit_sha: str, output_dir: str, doc_snapshot: Optional[Dict[str, Any]] = None):
@@ -29,8 +30,9 @@ class SummaryGenerator:
 
         impact = self.load_json(self.impact_report_path)
         drift = self.load_json(self.drift_report_path) if self.drift_report_path else {}
+        doc_snapshot = self.doc_snapshot or {}
 
-        summary_payload = self._build_summary_payload(impact, drift)
+        summary_payload = self._build_summary_payload(impact, drift, doc_snapshot)
 
         summary_md = self._render_template(summary_payload)
         summary_json = summary_payload.copy()
@@ -55,108 +57,31 @@ class SummaryGenerator:
         logger.info(f"Summary generated at {output_path_md} and {output_path_json}")
         return output_path_md, output_path_json
 
-    def _build_summary_payload(self, impact: Dict[str, Any], drift: Dict[str, Any]) -> Dict[str, Any]:
-        # Handle nested structure: impact_report.json has report.report.* structure
-        if "report" in impact and isinstance(impact["report"], dict):
-            if "report" in impact["report"]:
-                impact_data = impact["report"]["report"]
-            else:
-                impact_data = impact["report"]
-        else:
-            impact_data = impact
-        
-        # Extract analysis summary
-        analysis_summary = impact_data.get("analysis_summary", {})
-        severity = (
-            analysis_summary.get("highest_severity")
-            or analysis_summary.get("severity")
-            or impact_data.get("severity")
-            or "UNKNOWN"
-        )
-        changed_files = impact_data.get("changed_files", [])
-        total_files = analysis_summary.get("total_files", len(changed_files))
-        breaking_changes = bool(
-            analysis_summary.get("breaking_changes_detected", impact_data.get("breaking_changes", False))
-        )
-        
-        # Extract commit metadata from doc_snapshot if available
-        commit_metadata = {}
-        if self.doc_snapshot:
-            # Use generated_at as commit timestamp
-            generated_at = self.doc_snapshot.get("generated_at", "")
-            project_id = self.doc_snapshot.get("project_id", "")
-            
-            commit_metadata = {
-                "timestamp": generated_at,
-                "project_id": project_id,
-                "author": "Unknown",  # Not available in current data
-                "message": "Unknown"  # Not available in current data
-            }
-        
-        if not isinstance(commit_metadata, dict):
-            commit_metadata = {"raw": commit_metadata}
-        
-        # Extract changed files and affected packages
-        affected_symbols = impact_data.get("affected_packages") or impact_data.get("affected_symbols", [])
-        
-        # Extract API impact
-        api_contract = impact_data.get("api_contract", {})
-        endpoints = api_contract.get("endpoints", [])
-        api_impact_summary = f"Detected {len(endpoints)} API endpoints" if endpoints else ""
-        
-        # Extract drift information
-        drift_issues = drift.get("issues") or drift.get("findings") or drift.get("drift_findings") or []
-        
-        # Build risk assessment
-        risk_assessment = ""
-        if breaking_changes:
-            risk_assessment = f"⚠️ BREAKING CHANGES DETECTED. Severity: {severity}. {total_files} files changed."
-        else:
-            risk_assessment = f"Severity: {severity}. {total_files} files changed."
-        
-        # Build affected components from packages
-        affected_components = affected_symbols[:10] if affected_symbols else []  # Limit to top 10
-        
-        # Build recommended actions
-        recommended_actions = []
-        if breaking_changes:
-            recommended_actions.append("Review breaking changes carefully before deployment")
-            recommended_actions.append("Update API documentation")
-            recommended_actions.append("Notify dependent teams")
-        if len(endpoints) > 0:
-            recommended_actions.append(f"Review {len(endpoints)} API endpoint changes")
-        if drift_issues:
-            recommended_actions.append(f"Address {len(drift_issues)} documentation drift issues")
+    def _build_summary_payload(self, impact: Dict[str, Any], drift: Dict[str, Any], doc_snapshot: Dict[str, Any]) -> Dict[str, Any]:
+        # Normalize incoming data into reliable schema via normalizer layer
+        repo_state = normalize_repository_state(impact, drift, doc_snapshot, self.commit_sha)
 
-        # Deterministic sorting/normalization
-        changed_files = self._normalize_list(changed_files)
-        affected_symbols = self._normalize_list(affected_symbols)
-        affected_components = self._normalize_list(affected_components)
-        recommended_actions = self._normalize_list(recommended_actions)
-        drift_issues = self._normalize_issue_list(drift_issues)
+        risk_level = "LOW"
+        if repo_state.severity in ["MAJOR", "CRITICAL"] or repo_state.breaking_changes:
+            risk_level = "HIGH"
+        elif repo_state.severity == "MINOR" or repo_state.drift_detected:
+            risk_level = "MEDIUM"
 
-        changed_files_count = total_files
-
-        api_impact_text = self._stringify_field(api_impact_summary)
-        risk_text = self._stringify_field(risk_assessment)
-
-        payload = {
-            "summary_version": "1",
-            "commit_sha": self.commit_sha,
-            "commit_metadata": commit_metadata,
-            "severity": severity,
-            "changed_files_count": changed_files_count,
-            "changed_files": changed_files,
-            "affected_symbols": affected_symbols,
-            "api_impact_summary": api_impact_text,
-            "drift_findings": drift_issues,
-            "risk_assessment": risk_text,
-            "affected_components": affected_components,
-            "recommended_actions": recommended_actions,
-            "drift_report_present": bool(drift)
+        return {
+            "commit": {
+                "hash": repo_state.commit_hash,
+                "author": repo_state.author,
+                "timestamp": repo_state.timestamp
+            },
+            "files_changed_count": repo_state.changed_files_count,
+            "changed_files": repo_state.changed_files,
+            "api_endpoints": repo_state.api_endpoints,
+            "affected_components": repo_state.affected_components,
+            "breaking_changes": repo_state.breaking_changes,
+            "drift_detected": repo_state.drift_detected,
+            "drift_findings": repo_state.drift_findings,
+            "risk_level": risk_level
         }
-
-        return payload
 
 
     def _normalize_list(self, value: Any) -> List[str]:
@@ -198,29 +123,29 @@ class SummaryGenerator:
         return json.dumps(value, sort_keys=True)
 
     def _render_template(self, payload: Dict[str, Any]) -> str:
-        commit_meta = payload.get("commit_metadata") or {}
-        commit_author = commit_meta.get("author") or commit_meta.get("author_name") or "Unknown"
-        commit_timestamp = commit_meta.get("timestamp") or commit_meta.get("date") or "Unknown"
-        commit_message = commit_meta.get("message") or commit_meta.get("title") or "Unknown"
+        commit = payload.get("commit", {})
+        commit_author = commit.get("author", "Unknown")
+        commit_timestamp = commit.get("timestamp", "Unknown")
+        commit_hash = commit.get("hash", "Unknown")
 
         changed_files = payload.get("changed_files", [])
-        affected_symbols = payload.get("affected_symbols", [])
-        drift_issues = payload.get("drift_findings", [])
+        files_count = payload.get("files_changed_count", 0)
         affected_components = payload.get("affected_components", [])
-        recommended_actions = payload.get("recommended_actions", [])
-        api_impact_summary = payload.get("api_impact_summary", "")
-        risk_assessment = payload.get("risk_assessment", "")
+        api_endpoints = payload.get("api_endpoints", 0)
+        drift_findings = payload.get("drift_findings", [])
+        drift_detected = payload.get("drift_detected", False)
+        risk_level = payload.get("risk_level", "LOW")
+        breaking_changes = payload.get("breaking_changes", False)
 
         template = f"""# Change Summary
 
-**Commit SHA:** `{payload.get("commit_sha", "")}`
+**Commit SHA:** `{commit_hash}`
 **Commit Author:** {commit_author}
 **Commit Time:** {commit_timestamp}
-**Commit Message:** {commit_message}
-**Severity:** {payload.get("severity", "UNKNOWN")}
+**Risk Level:** {risk_level}
 
 ## Impact Analysis
-### Changed Modules/Files ({payload.get("changed_files_count", len(changed_files))})
+### Changed Modules/Files ({files_count})
 """
         if changed_files:
             for file in changed_files:
@@ -228,16 +153,9 @@ class SummaryGenerator:
         else:
             template += "- No changed files detected.\n"
 
-        template += f"\n### Affected Symbols/Functions ({len(affected_symbols)})\n"
-        if affected_symbols:
-            for symbol in affected_symbols:
-                template += f"- `{symbol}`\n"
-        else:
-            template += "- No specific symbols identified as affected.\n"
-
         template += "\n### API Impact Summary\n"
-        if api_impact_summary:
-            template += f"{api_impact_summary}\n"
+        if api_endpoints > 0:
+            template += f"Detected {api_endpoints} API endpoints\n"
         else:
             template += "No API impact summary provided.\n"
 
@@ -249,25 +167,17 @@ class SummaryGenerator:
             template += "- No affected components listed.\n"
 
         template += "\n### Risk Assessment\n"
-        if risk_assessment:
-            template += f"{risk_assessment}\n"
+        if breaking_changes:
+            template += f"⚠️ BREAKING CHANGES DETECTED. Risk Level: {risk_level}. {files_count} files changed.\n"
         else:
-            template += "No risk assessment provided.\n"
+            template += f"Risk Level: {risk_level}. {files_count} files changed.\n"
 
-        template += "\n### Recommended Developer Actions\n"
-        if recommended_actions:
-            for action in recommended_actions:
-                template += f"- {action}\n"
-        else:
-            template += "- No recommended actions provided.\n"
-
-        template += f"\n## Drift Report ({len(drift_issues)} Issues)\n"
-        if drift_issues:
-            for issue in drift_issues:
-                desc = issue.get("description", "")
-                severity = issue.get("severity", "")
-                label = f"[{severity}] " if severity else ""
-                template += f"- {label}{desc}\n"
+        template += f"\n## Drift Report ({'Detected' if drift_detected else 'None'})\n"
+        if drift_findings:
+            for issue in drift_findings:
+                issue_type = issue.get("type", "unknown")
+                count = issue.get("count", 0)
+                template += f"- {issue_type}: {count}\n"
         else:
             template += "- No drift issues detected.\n"
 

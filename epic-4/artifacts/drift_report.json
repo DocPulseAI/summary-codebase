@@ -1,18 +1,351 @@
 {
-  "report_id": "01c7c690-e4cb-4e33-aca3-3dc9c4f0d4c3",
-  "generated_at": "2026-02-11T11:22:31.966731Z",
+  "report_id": "219dacb9-a5cd-4ab9-8f5c-42d6e2a6d4ab",
+  "generated_at": "2026-03-09T18:35:32.960504Z",
   "drift_detected": true,
-  "overall_severity": "MINOR",
-  "severity_summary": {
-    "CRITICAL": 0,  
-    "MAJOR": 0,     
-    "MINOR": 182    
-  },
-  "validated_docs_bucket_path": "quiz-app-java/63d36c2b/docs/",
+  "severity": "LOW",
+  "overall_severity": "LOW",
   "statistics": {
-    "total_code_symbols": 27,
-    "api_drift_count": 0,
-    "schema_drift_count": 0,
-    "obsolete_documentation_count": 182
-  }
+    "missing_endpoints": 0,
+    "obsolete_endpoints": 56,
+    "schema_changes": 0,
+    "architecture_changes": 0
+  },
+  "findings": [
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/comments/:id",
+      "description": "API endpoint 'DELETE /api/v1/comments/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/comments/:id/reactions/:emoji",
+      "description": "API endpoint 'DELETE /api/v1/comments/:id/reactions/:emoji' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/labels/:id",
+      "description": "API endpoint 'DELETE /api/v1/labels/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/notifications/:id",
+      "description": "API endpoint 'DELETE /api/v1/notifications/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/notifications/all",
+      "description": "API endpoint 'DELETE /api/v1/notifications/all' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/projects/:id",
+      "description": "API endpoint 'DELETE /api/v1/projects/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/projects/:id/members/:memberId",
+      "description": "API endpoint 'DELETE /api/v1/projects/:id/members/:memberId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/tasks/:id",
+      "description": "API endpoint 'DELETE /api/v1/tasks/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "DELETE /api/v1/users/:id",
+      "description": "API endpoint 'DELETE /api/v1/users/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api-docs.json",
+      "description": "API endpoint 'GET /api-docs.json' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/activities/me",
+      "description": "API endpoint 'GET /api/v1/activities/me' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/activities/project/:projectId",
+      "description": "API endpoint 'GET /api/v1/activities/project/:projectId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/activities/user/:userId",
+      "description": "API endpoint 'GET /api/v1/activities/user/:userId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/auth/me",
+      "description": "API endpoint 'GET /api/v1/auth/me' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/comments",
+      "description": "API endpoint 'GET /api/v1/comments' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/dashboard/admin",
+      "description": "API endpoint 'GET /api/v1/dashboard/admin' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/dashboard/overview",
+      "description": "API endpoint 'GET /api/v1/dashboard/overview' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/dashboard/workload/:projectId",
+      "description": "API endpoint 'GET /api/v1/dashboard/workload/:projectId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/labels",
+      "description": "API endpoint 'GET /api/v1/labels' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/labels/:id",
+      "description": "API endpoint 'GET /api/v1/labels/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/notifications",
+      "description": "API endpoint 'GET /api/v1/notifications' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/notifications/unread-count",
+      "description": "API endpoint 'GET /api/v1/notifications/unread-count' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/projects",
+      "description": "API endpoint 'GET /api/v1/projects' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/projects/:id",
+      "description": "API endpoint 'GET /api/v1/projects/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/projects/analytics",
+      "description": "API endpoint 'GET /api/v1/projects/analytics' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/search",
+      "description": "API endpoint 'GET /api/v1/search' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/tasks",
+      "description": "API endpoint 'GET /api/v1/tasks' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/tasks/:id",
+      "description": "API endpoint 'GET /api/v1/tasks/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/tasks/board/:projectId",
+      "description": "API endpoint 'GET /api/v1/tasks/board/:projectId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/tasks/my-tasks",
+      "description": "API endpoint 'GET /api/v1/tasks/my-tasks' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/tasks/stats/:projectId",
+      "description": "API endpoint 'GET /api/v1/tasks/stats/:projectId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/users",
+      "description": "API endpoint 'GET /api/v1/users' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/users/:id",
+      "description": "API endpoint 'GET /api/v1/users/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /api/v1/users/statistics",
+      "description": "API endpoint 'GET /api/v1/users/statistics' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "GET /health",
+      "description": "API endpoint 'GET /health' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/comments/:id",
+      "description": "API endpoint 'PATCH /api/v1/comments/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/labels/:id",
+      "description": "API endpoint 'PATCH /api/v1/labels/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/notifications/:id/read",
+      "description": "API endpoint 'PATCH /api/v1/notifications/:id/read' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/notifications/read-all",
+      "description": "API endpoint 'PATCH /api/v1/notifications/read-all' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/projects/:id",
+      "description": "API endpoint 'PATCH /api/v1/projects/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/projects/:id/members/:memberId",
+      "description": "API endpoint 'PATCH /api/v1/projects/:id/members/:memberId' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/tasks/:id",
+      "description": "API endpoint 'PATCH /api/v1/tasks/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/tasks/bulk",
+      "description": "API endpoint 'PATCH /api/v1/tasks/bulk' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/users/:id",
+      "description": "API endpoint 'PATCH /api/v1/users/:id' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "PATCH /api/v1/users/:id/role",
+      "description": "API endpoint 'PATCH /api/v1/users/:id/role' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/auth/change-password",
+      "description": "API endpoint 'POST /api/v1/auth/change-password' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/auth/login",
+      "description": "API endpoint 'POST /api/v1/auth/login' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/auth/logout",
+      "description": "API endpoint 'POST /api/v1/auth/logout' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/auth/refresh",
+      "description": "API endpoint 'POST /api/v1/auth/refresh' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/auth/register",
+      "description": "API endpoint 'POST /api/v1/auth/register' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/comments",
+      "description": "API endpoint 'POST /api/v1/comments' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/comments/:id/reactions",
+      "description": "API endpoint 'POST /api/v1/comments/:id/reactions' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/labels",
+      "description": "API endpoint 'POST /api/v1/labels' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/projects",
+      "description": "API endpoint 'POST /api/v1/projects' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/projects/:id/members",
+      "description": "API endpoint 'POST /api/v1/projects/:id/members' is documented but no longer exists in code."
+    },
+    {
+      "type": "API_OBSOLETE",
+      "severity": "MINOR",
+      "symbol": "POST /api/v1/tasks",
+      "description": "API endpoint 'POST /api/v1/tasks' is documented but no longer exists in code."
+    }
+  ]
 }

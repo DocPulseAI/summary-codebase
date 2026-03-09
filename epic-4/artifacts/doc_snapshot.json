@@ -1,657 +1,343 @@
 {
-  "snapshot_id": "eb04eaa28c7d519e",
-  "project_id": "quiz-app-java",
-  "commit": "63d36c2b",
-  "generated_at": "2026-02-11T10:59:22.421208Z",
-  "docs_bucket_path": "quiz-app-java/63d36c2b/docs/",
-  "generated_files": [
-    {
-      "file": "README.generated.md",
-      "type": "markdown",
-      "description": "Auto-generated repository README"
-    },
-    {
-      "file": "adr/ADR-001.md",
-      "type": "markdown",
-      "description": "Architecture Baseline"
-    },
-    {
-      "file": "architecture/system.mmd",
-      "type": "mermaid",
-      "description": "System architecture diagram"
-    },
-    {
-      "file": "architecture/sequence.mmd",
-      "type": "mermaid",
-      "description": "Process sequence diagram"
-    },
-    {
-      "file": "architecture/er.mmd",
-      "type": "mermaid",
-      "description": "Entity-relationship diagram"
-    },
-    {
-      "file": "architecture/architecture.md",
-      "type": "markdown",
-      "description": "Architecture documentation text"
-    },
-    {
-      "file": "api/api-reference.md",
-      "type": "markdown",
-      "description": "API endpoint documentation"
-    },
-    {
-      "file": "api/api-descriptions.json",
-      "type": "json",
-      "description": "API endpoint descriptions map"
-    },
-    {
-      "file": "tree.txt",
-      "type": "text",
-      "description": "Hierarchical file tree"
-    },
-    {
-      "file": "doc_snapshot.json",
-      "type": "json",
-      "description": "Documentation generation metadata"
-    },
-    {
-      "file": "documentation-health.md",
-      "type": "markdown",
-      "description": "Documentation health report"
-    }
-  ],
+  "analysis": {
+    "breaking_changes": false,
+    "files_changed": 16,
+    "severity": "UNKNOWN"
+  },
+  "author": "unknown",
+  "changed_files": [],
+  "commit": "94736db8d8b83f3d8c7042ff6d6a30b7690e0935",
+  "docs_bucket_path": "example-repo/94736db8d8b83f3d8c7042ff6d6a30b7690e0935/docs/",
   "documentation_health": {
+    "api_coverage": 1.0,
+    "drift_detected": false,
     "missing_sections": [],
     "template_followed": true
   },
-  "author": "kireeti-ai",
-  "analysis": {
-    "severity": "MAJOR",
-    "breaking_changes": true,
-    "files_changed": 114
-  },
-  "errors": [],
-  "statistics": {
-    "total_files": 114,
-    "total_documents": 11,
-    "diagram_count": 3
-  },
-  "repo": {
-    "name": "ci-living-documentation",
-    "branch": "main",
-    "commit": "d4509166"
-  },
-  "changed_files": [
+  "endpoint_hashes": [
     {
-      "path": "Dockerfile",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "e51d36f8895b",
+      "normalized_key": "DELETE /api/v1/comments/:id"
     },
     {
-      "path": "README.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "a91adcc34fb3",
+      "normalized_key": "DELETE /api/v1/comments/:id/reactions/:emoji"
     },
     {
-      "path": "docker-compose.yml",
-      "language": null,
-      "severity": "MINOR"
+      "endpoint_hash": "188267edc793",
+      "normalized_key": "DELETE /api/v1/labels/:id"
     },
     {
-      "path": "package.json",
-      "language": null,
-      "severity": "MINOR"
+      "endpoint_hash": "8d9f6411ef7a",
+      "normalized_key": "DELETE /api/v1/notifications/:id"
     },
     {
-      "path": "backend/.env.example",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "3ae27922cd6a",
+      "normalized_key": "DELETE /api/v1/notifications/all"
     },
     {
-      "path": "backend/.eslintrc.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "41ed642ca7d5",
+      "normalized_key": "DELETE /api/v1/projects/:id"
     },
     {
-      "path": "backend/package.json",
-      "language": null,
-      "severity": "MINOR"
+      "endpoint_hash": "ac2d3a090dcc",
+      "normalized_key": "DELETE /api/v1/projects/:id/members/:memberId"
     },
     {
-      "path": "docs/ADR-001.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "10c0e0acdaf0",
+      "normalized_key": "DELETE /api/v1/tasks/:id"
     },
     {
-      "path": "docs/api-reference.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "3b73de5037d5",
+      "normalized_key": "DELETE /api/v1/users/:id"
     },
     {
-      "path": "docs/architecture.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "aea772744fbe",
+      "normalized_key": "GET /api-docs.json"
     },
     {
-      "path": "docs/changelog.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "579bf438adb8",
+      "normalized_key": "GET /api/v1/activities/me"
     },
     {
-      "path": "docs/data-model.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "37a075dff7c3",
+      "normalized_key": "GET /api/v1/activities/project/:projectId"
     },
     {
-      "path": "docs/security.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "605aa6dbb671",
+      "normalized_key": "GET /api/v1/activities/user/:userId"
     },
     {
-      "path": "docs/testing.md",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "2dd5b5548aaf",
+      "normalized_key": "GET /api/v1/auth/me"
     },
     {
-      "path": "frontend/Dockerfile.dev",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "718ab5045c00",
+      "normalized_key": "GET /api/v1/comments"
     },
     {
-      "path": "frontend/index.html",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "43bcdb007970",
+      "normalized_key": "GET /api/v1/dashboard/admin"
     },
     {
-      "path": "frontend/package.json",
-      "language": null,
-      "severity": "MINOR"
+      "endpoint_hash": "1e167ec95ccc",
+      "normalized_key": "GET /api/v1/dashboard/overview"
     },
     {
-      "path": "frontend/vite.config.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "3bb849bd3fd8",
+      "normalized_key": "GET /api/v1/dashboard/workload/:projectId"
     },
     {
-      "path": ".github/workflows/ci.yml",
-      "language": null,
-      "severity": "MINOR"
+      "endpoint_hash": "e12a7cdfede5",
+      "normalized_key": "GET /api/v1/labels"
     },
     {
-      "path": "backend/src/app.js",
-      "language": "javascript",
-      "severity": "MAJOR"
+      "endpoint_hash": "e085c5b97952",
+      "normalized_key": "GET /api/v1/labels/:id"
     },
     {
-      "path": "backend/src/server.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "5b44ad84bd79",
+      "normalized_key": "GET /api/v1/notifications"
     },
     {
-      "path": "backend/tests/setup.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "74f5a92bb90b",
+      "normalized_key": "GET /api/v1/notifications/unread-count"
     },
     {
-      "path": "frontend/src/App.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "49d550f84253",
+      "normalized_key": "GET /api/v1/projects"
     },
     {
-      "path": "frontend/src/index.css",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "6d2d1d17f503",
+      "normalized_key": "GET /api/v1/projects/:id"
     },
     {
-      "path": "frontend/src/main.jsx",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "c556aa607cf9",
+      "normalized_key": "GET /api/v1/projects/analytics"
     },
     {
-      "path": "frontend/tests/setup.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "499d467781a5",
+      "normalized_key": "GET /api/v1/search"
     },
     {
-      "path": "backend/src/config/database.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "82be46bd369c",
+      "normalized_key": "GET /api/v1/tasks"
     },
     {
-      "path": "backend/src/config/index.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "6dd9254bdc64",
+      "normalized_key": "GET /api/v1/tasks/:id"
     },
     {
-      "path": "backend/src/docs/swagger.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "abc514eee556",
+      "normalized_key": "GET /api/v1/tasks/board/:projectId"
     },
     {
-      "path": "backend/src/middleware/auth.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "24d1fc1d09bd",
+      "normalized_key": "GET /api/v1/tasks/my-tasks"
     },
     {
-      "path": "backend/src/middleware/errorHandler.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "dd9a1c3634c1",
+      "normalized_key": "GET /api/v1/tasks/stats/:projectId"
     },
     {
-      "path": "backend/src/middleware/index.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "10daa02c72e7",
+      "normalized_key": "GET /api/v1/users"
     },
     {
-      "path": "backend/src/middleware/rbac.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "6eda2112a4e0",
+      "normalized_key": "GET /api/v1/users/:id"
     },
     {
-      "path": "backend/src/middleware/requestLogger.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "d49e4ccb7086",
+      "normalized_key": "GET /api/v1/users/statistics"
     },
     {
-      "path": "backend/src/middleware/validate.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "1876021bb2f2",
+      "normalized_key": "GET /health"
     },
     {
-      "path": "backend/src/routes/index.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "d4d282cd254e",
+      "normalized_key": "PATCH /api/v1/comments/:id"
     },
     {
-      "path": "backend/src/scripts/seed.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "6a7ebf2eb17b",
+      "normalized_key": "PATCH /api/v1/labels/:id"
     },
     {
-      "path": "backend/src/utils/ApiError.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "c0b7e6021912",
+      "normalized_key": "PATCH /api/v1/notifications/:id/read"
     },
     {
-      "path": "backend/src/utils/ApiResponse.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "04b47a82f10d",
+      "normalized_key": "PATCH /api/v1/notifications/read-all"
     },
     {
-      "path": "backend/src/utils/asyncHandler.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "8c2149f48a65",
+      "normalized_key": "PATCH /api/v1/projects/:id"
     },
     {
-      "path": "backend/src/utils/index.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "f9e38e93f47c",
+      "normalized_key": "PATCH /api/v1/projects/:id/members/:memberId"
     },
     {
-      "path": "backend/src/utils/jwt.js",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "0bdfe47440e9",
+      "normalized_key": "PATCH /api/v1/tasks/:id"
     },
     {
-      "path": "backend/src/utils/logger.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "a66e2038d457",
+      "normalized_key": "PATCH /api/v1/tasks/bulk"
     },
     {
-      "path": "backend/tests/integration/auth.test.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "268c20c9e868",
+      "normalized_key": "PATCH /api/v1/users/:id"
     },
     {
-      "path": "backend/tests/integration/projects.test.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "bb708cf40f1b",
+      "normalized_key": "PATCH /api/v1/users/:id/role"
     },
     {
-      "path": "backend/tests/integration/tasks.test.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "74a7c00aaa0b",
+      "normalized_key": "POST /api/v1/auth/change-password"
     },
     {
-      "path": "frontend/src/context/AuthContext.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "d8c4ec7fd38f",
+      "normalized_key": "POST /api/v1/auth/login"
     },
     {
-      "path": "frontend/src/pages/AdminPage.css",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "02c525e3ab89",
+      "normalized_key": "POST /api/v1/auth/logout"
     },
     {
-      "path": "frontend/src/pages/AdminPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "d659d0e929c0",
+      "normalized_key": "POST /api/v1/auth/refresh"
     },
     {
-      "path": "frontend/src/pages/AuthPages.css",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "93b669340dee",
+      "normalized_key": "POST /api/v1/auth/register"
     },
     {
-      "path": "frontend/src/pages/DashboardPage.css",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "93c6e72dc68d",
+      "normalized_key": "POST /api/v1/comments"
     },
     {
-      "path": "frontend/src/pages/DashboardPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "3875e794518e",
+      "normalized_key": "POST /api/v1/comments/:id/reactions"
     },
     {
-      "path": "frontend/src/pages/LoginPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "95450c51b935",
+      "normalized_key": "POST /api/v1/labels"
     },
     {
-      "path": "frontend/src/pages/ProfilePage.css",
-      "language": null,
-      "severity": "PATCH"
+      "endpoint_hash": "8413f2cd627d",
+      "normalized_key": "POST /api/v1/projects"
     },
     {
-      "path": "frontend/src/pages/ProfilePage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
+      "endpoint_hash": "f5ac62108263",
+      "normalized_key": "POST /api/v1/projects/:id/members"
     },
     {
-      "path": "frontend/src/pages/ProjectDetailPage.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/pages/ProjectDetailPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/pages/ProjectsPage.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/pages/ProjectsPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/pages/RegisterPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/pages/TasksPage.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/pages/TasksPage.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/services/api.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/services/authService.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/services/projectService.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/services/taskService.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/services/userService.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/activity/Activity.model.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/comments/Comment.model.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/labels/Label.model.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/projects/Project.model.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/tasks/Task.model.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/users/User.model.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "frontend/src/components/auth/ProtectedRoute.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/components/common/Avatar.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/components/common/Avatar.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/components/common/Layout.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/components/common/Layout.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/components/common/LoadingSpinner.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/components/common/LoadingSpinner.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/components/common/Navbar.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/components/common/Navbar.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "frontend/src/components/common/Sidebar.css",
-      "language": null,
-      "severity": "PATCH"
-    },
-    {
-      "path": "frontend/src/components/common/Sidebar.jsx",
-      "language": "javascript",
-      "severity": "MINOR"
-    },
-    {
-      "path": "backend/src/modules/activity/controllers/activity.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/activity/routes/activity.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/activity/services/activity.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/auth/controllers/auth.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/auth/routes/auth.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/auth/services/auth.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/auth/validators/auth.validator.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/comments/controllers/comment.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/comments/routes/comment.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/comments/services/comment.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/comments/validators/comment.validator.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/labels/controllers/label.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/labels/routes/label.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/labels/services/label.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/labels/validators/label.validator.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/projects/controllers/project.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/projects/repositories/project.repository.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/projects/routes/project.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/projects/services/project.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/projects/validators/project.validator.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/tasks/controllers/task.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/tasks/repositories/task.repository.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/tasks/routes/task.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/tasks/services/task.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/tasks/validators/task.validator.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/users/controllers/user.controller.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/users/repositories/user.repository.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/users/routes/user.routes.js",
-      "language": "javascript",
-      "severity": "MAJOR"
-    },
-    {
-      "path": "backend/src/modules/users/services/user.service.js",
-      "language": "javascript",
-      "severity": "PATCH"
-    },
-    {
-      "path": "backend/src/modules/users/validators/user.validator.js",
-      "language": "javascript",
-      "severity": "PATCH"
+      "endpoint_hash": "dccf319c1b7b",
+      "normalized_key": "POST /api/v1/tasks"
     }
-  ]
+  ],
+  "errors": [],
+  "evidence_confidence": 93.0,
+  "generated_files": [
+    {
+      "description": "Auto-generated repository README",
+      "file": "README.generated.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Architecture Baseline",
+      "file": "adr/ADR-001.md",
+      "type": "markdown"
+    },
+    {
+      "description": "API endpoint descriptions map",
+      "file": "api/api-descriptions.json",
+      "type": "json"
+    },
+    {
+      "description": "API endpoint documentation",
+      "file": "api/api-reference.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Architecture documentation text",
+      "file": "architecture/architecture.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Module dependency graph",
+      "file": "architecture/dependency-graph.mmd",
+      "type": "mermaid"
+    },
+    {
+      "description": "Entity-relationship diagram",
+      "file": "architecture/er.mmd",
+      "type": "mermaid"
+    },
+    {
+      "description": "Request Execution Flows Diagram",
+      "file": "architecture/execution-flow.mmd",
+      "type": "mermaid"
+    },
+    {
+      "description": "Request Execution Flows Markdown",
+      "file": "architecture/request-flows.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Process sequence diagram",
+      "file": "architecture/sequence.mmd",
+      "type": "mermaid"
+    },
+    {
+      "description": "System architecture diagram",
+      "file": "architecture/system.mmd",
+      "type": "mermaid"
+    },
+    {
+      "description": "Documentation generation metadata",
+      "file": "doc_snapshot.json",
+      "type": "json"
+    },
+    {
+      "description": "Documentation health report",
+      "file": "documentation-health.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Architecture Drift Report",
+      "file": "impact/architecture-drift.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Change Impact Report",
+      "file": "impact/change-impact.md",
+      "type": "markdown"
+    },
+    {
+      "description": "Hierarchical file tree",
+      "file": "tree.txt",
+      "type": "text"
+    }
+  ],
+  "generation_mode": "CI_DETERMINISTIC",
+  "project_id": "example-repo",
+  "repo": {
+    "branch": "main",
+    "commit": "94736db8d8b83f3d8c7042ff6d6a30b7690e0935",
+    "name": "example-repo"
+  },
+  "snapshot_id": "9d2d7783b2268d7d",
+  "statistics": {
+    "diagram_count": 5,
+    "json_count": 2,
+    "markdown_count": 8,
+    "total_documents": 16,
+    "total_files": 16
+  },
+  "validation_score": 100.0
 }
