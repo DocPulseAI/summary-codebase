@@ -99,7 +99,7 @@ jobs:
               --name drift-detect \
               --resource-group DocPulse \
               --image docpulseresgistry.azurecr.io/drift-detect:latest \
-              --args "uvicorn" "epic4.api:app" "--host" "0.0.0.0" "--port" "8000" \
+              --args "uvicorn epic4.api:app --host 0.0.0.0 --port 8000" \
               --revision-suffix "r$(date +%s)"
 
             echo "Verifying deployment..."
