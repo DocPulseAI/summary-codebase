@@ -92,15 +92,14 @@ jobs:
                 AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
                 AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
                 AZURE_STORAGE_CONTAINER=${{ secrets.AZURE_STORAGE_CONTAINER }} \
-                DOCS_BUCKET_PATH=${{ secrets.DOCS_BUCKET_PATH }} \
-                SERVICE_BUS_CONNECTION_STRING=${{ secrets.SERVICE_BUS_CONNECTION_STRING }} \
-                EPIC4_QUEUE_NAME=${{ secrets.EPIC4_QUEUE_NAME }}
+                DOCS_BUCKET_PATH=${{ secrets.DOCS_BUCKET_PATH }}
 
             echo "Deploying to Container App with latest image..."
             az containerapp update \
               --name drift-detect \
               --resource-group DocPulse \
               --image docpulseresgistry.azurecr.io/drift-detect:latest \
+              --args "uvicorn" "epic4.api:app" "--host" "0.0.0.0" "--port" "8000" \
               --revision-suffix "r$(date +%s)"
 
             echo "Verifying deployment..."
