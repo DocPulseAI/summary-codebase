@@ -143,6 +143,11 @@ class GenerateSummaryRequest(BaseModel):
         example="63d36c2b",
         min_length=8
     )
+    project_id: Optional[str] = Field(
+        None,
+        description="Project ID (UUID) used for storage path construction",
+        example="a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6"
+    )
     
     class Config:
         json_schema_extra = {
@@ -354,7 +359,7 @@ def api_generate_summary(req: GenerateSummaryRequest):
 
             # --- Upload to cloud storage ---
             upload_result = _upload_summary_artifacts(
-                output_path_md, output_path_json, req.doc_snapshot, req.commit_sha
+                output_path_md, output_path_json, req.doc_snapshot, req.commit_sha, req.project_id
             )
 
             return {
@@ -373,7 +378,8 @@ def _upload_summary_artifacts(
     summary_md_path: str,
     summary_json_path: str,
     doc_snapshot: Dict[str, Any],
-    commit_sha: str
+    commit_sha: str,
+    project_id_override: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Upload summary artifacts to cloud storage.
@@ -382,29 +388,35 @@ def _upload_summary_artifacts(
     Returns:
         dict with keys: uploaded, bucket_path, files, error
     """
-    # Derive upload path from doc_snapshot
-    docs_bucket_path = None
-    if doc_snapshot:
-        docs_bucket_path = doc_snapshot.get("docs_bucket_path")
-    
-    # Fallback to config if not provided in doc_snapshot
-    if not docs_bucket_path:
-        docs_bucket_path = config.DOCS_BUCKET_PATH
-    
-    if not docs_bucket_path:
-        logger.info("No docs_bucket_path available — skipping cloud upload")
-        return {
-            "uploaded": False,
-            "bucket_path": None,
-            "files": [],
-            "error": "No docs_bucket_path configured (provide in doc_snapshot or DOCS_BUCKET_PATH env)"
-        }
-    
-    # Build the summary bucket path: <docs_bucket_path>summary/
-    summary_path_relative = docs_bucket_path
-    if not summary_path_relative.endswith('/'):
-        summary_path_relative += '/'
-    summary_path_relative += "summary/"
+    # Prioritize project_id_override (from main backend)
+    if project_id_override:
+        # Construct path using backend-provided project_id and commit
+        summary_path_relative = f"{project_id_override}/{commit_sha}/docs/summary/"
+        logger.info(f"Using project_id_override for path: {summary_path_relative}")
+    else:
+        # Fallback to doc_snapshot or config
+        docs_bucket_path = None
+        if doc_snapshot:
+            docs_bucket_path = doc_snapshot.get("docs_bucket_path")
+        
+        # Fallback to config if not provided in doc_snapshot
+        if not docs_bucket_path:
+            docs_bucket_path = config.DOCS_BUCKET_PATH
+        
+        if not docs_bucket_path:
+            logger.info("No docs_bucket_path available — skipping cloud upload")
+            return {
+                "uploaded": False,
+                "bucket_path": None,
+                "files": [],
+                "error": "No docs_bucket_path configured (provide in doc_snapshot or DOCS_BUCKET_PATH env)"
+            }
+        
+        # Build the summary bucket path: <docs_bucket_path>summary/
+        summary_path_relative = docs_bucket_path
+        if not summary_path_relative.endswith('/'):
+            summary_path_relative += '/'
+        summary_path_relative += "summary/"
     
     # Construct full Azure URI
     summary_bucket_uri = f"az://{config.AZURE_CONTAINER_NAME}/{summary_path_relative}"

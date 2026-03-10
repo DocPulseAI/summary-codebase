@@ -35,6 +35,7 @@ class SummaryGenerator:
         summary_payload = self._build_summary_payload(impact, drift, doc_snapshot)
 
         summary_md = self._render_template(summary_payload)
+        summary_payload["summary"] = summary_md # Add rendered MD for the UI
         summary_json = summary_payload.copy()
 
         # Contract-mandated filenames for Epic-5 dashboard integration
@@ -74,13 +75,13 @@ class SummaryGenerator:
                 "timestamp": repo_state.timestamp
             },
             "files_changed_count": repo_state.changed_files_count,
-            "changed_files": repo_state.changed_files,
+            "files_changed": repo_state.changed_files, # Standardized name
             "api_endpoints": repo_state.api_endpoints,
-            "affected_components": repo_state.affected_components,
-            "breaking_changes": repo_state.breaking_changes,
+            "affected_modules": repo_state.affected_components, # Standardized name
+            "breaking_changes": ["Major API or architecture changes detected"] if repo_state.breaking_changes else [], # Standardized as list
             "drift_detected": repo_state.drift_detected,
             "drift_findings": repo_state.drift_findings,
-            "risk_level": risk_level
+            "risk_level": risk_level.lower() # lowercase as expected by CSS/frontend
         }
 
 
