@@ -4,7 +4,7 @@ services:
     runtime: docker
     plan: free
     rootDir: epic-4
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./epic-4/Dockerfile
     envVars:
       # GitHub Configuration
       - key: GITHUB_TOKEN
