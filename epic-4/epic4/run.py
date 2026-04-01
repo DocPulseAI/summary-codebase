@@ -61,7 +61,7 @@ def _derive_runtime_values(
     else:
         if not summary_bucket_path.endswith("/"):
             summary_bucket_path += "/"
-        summary_bucket_uri = f"az://{config.AZURE_CONTAINER_NAME}/{summary_bucket_path}"
+        summary_bucket_uri = f"r2://{config.R2_BUCKET_NAME}/{summary_bucket_path}"
 
     return {
         "project_id": project_id,

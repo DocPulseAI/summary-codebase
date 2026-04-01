@@ -1,4 +1,4 @@
-name: Trigger auto deployment for drift-detect
+name: Epic-4 CI Pipeline
 
 # When this action will be executed
 on:
@@ -6,17 +6,15 @@ on:
   push:
     branches: [main]
     paths:
-      - "**"
-      - ".github/workflows/epic4_workflow.yaml"
+      - "epic-4/**"
 
   # Allow manual trigger
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  ci-pipeline:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write # This is required for requesting the OIDC JWT Token
       contents: read # Required when GH token is used to authenticate with private repo
 
     steps:
@@ -29,11 +27,13 @@ jobs:
           python-version: "3.11"
 
       - name: Install Dependencies
+        working-directory: ./epic-4
         run: |
           pip install -r requirements.txt
           pip install .
 
       - name: Run Tests and Validation
+        working-directory: ./epic-4
         run: |
           echo "Running tests..."
           pytest tests/ -v --tb=short || true
@@ -49,62 +49,5 @@ jobs:
           mkdir -p artifacts/docs artifacts/summaries artifacts/logs
           echo "Validation completed successfully"
 
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.EPIC4_AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.EPIC4_AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.EPIC4_AZURE_SUBSCRIPTION_ID }}
-
-      - name: Log in to Azure Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: docpulseresgistry.azurecr.io
-          username: ${{ secrets.EPIC4_REGISTRY_USERNAME }}
-          password: ${{ secrets.EPIC4_REGISTRY_PASSWORD }}
-
-      - name: Build and push container image to registry
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ github.workspace }}
-          file: Dockerfile
-          push: true
-          tags: docpulseresgistry.azurecr.io/drift-detect:latest
-
-      - name: Deploy to Azure Container Apps
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            echo "Setting registry credentials..."
-            az containerapp registry set \
-              --name drift-detect \
-              --resource-group DocPulse \
-              --server docpulseresgistry.azurecr.io \
-              --username ${{ secrets.EPIC4_REGISTRY_USERNAME }} \
-              --password ${{ secrets.EPIC4_REGISTRY_PASSWORD }}
-
-            echo "Updating environment variables..."
-            az containerapp update \
-              --name drift-detect \
-              --resource-group DocPulse \
-              --set-env-vars \
-                AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_STORAGE_CONNECTION_STRING }} \
-                AZURE_STORAGE_ACCOUNT_NAME=${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }} \
-                AZURE_STORAGE_ACCOUNT_KEY=${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
-                AZURE_STORAGE_CONTAINER=${{ secrets.AZURE_STORAGE_CONTAINER }} \
-                DOCS_BUCKET_PATH=${{ secrets.DOCS_BUCKET_PATH }}
-
-            echo "Deploying to Container App with latest image..."
-            az containerapp update \
-              --name drift-detect \
-              --resource-group DocPulse \
-              --image docpulseresgistry.azurecr.io/drift-detect:latest \
-              --args "uvicorn epic4.api:app --host 0.0.0.0 --port 8000" \
-              --revision-suffix "r$(date +%s)"
-
-            echo "Verifying deployment..."
-            az containerapp show \
-              --name drift-detect \
-              --resource-group DocPulse \
-              --query 'properties.latestRevisionFqdn' \
-              -o tsv
+      # Deployment is now handled automatically by Render when changes are pushed to GitHub.
+      # If you wish to trigger a Render Deploy Hook explicitly, you can add a curl step here.

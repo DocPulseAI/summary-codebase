@@ -3,6 +3,7 @@ services:
     name: epic4-docs-automation
     runtime: docker
     plan: free
+    rootDir: epic-4
     dockerfilePath: ./Dockerfile
     envVars:
       # GitHub Configuration
@@ -15,15 +16,15 @@ services:
       - key: TARGET_BRANCH
         value: main
 
-      # Azure Blob Storage Configuration (Optional - for cloud storage)
-      - key: AZURE_STORAGE_CONNECTION_STRING
+      # Cloudflare R2 Storage Configuration
+      - key: R2_ACCOUNT_ID
         sync: false
-      - key: AZURE_STORAGE_ACCOUNT_URL
+      - key: R2_ACCESS_KEY_ID
         sync: false
-      - key: AZURE_STORAGE_ACCOUNT_KEY
+      - key: R2_SECRET_ACCESS_KEY
         sync: false
-      - key: AZURE_CONTAINER_NAME
-        sync: false
+      - key: R2_BUCKET_NAME
+        value: ci-living-docs
       - key: DOCS_BUCKET_PATH
         sync: false
 

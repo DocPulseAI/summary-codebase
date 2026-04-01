@@ -33,11 +33,7 @@ class Config:
     R2_SECRET_ACCESS_KEY: str = os.getenv("R2_SECRET_ACCESS_KEY", "")
     R2_BUCKET_NAME: str = os.getenv("R2_BUCKET_NAME", "ci-living-docs")  # Default bucket name
 
-    # Azure Blob Storage configuration
-    AZURE_STORAGE_CONNECTION_STRING: str = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
-    AZURE_STORAGE_ACCOUNT_URL: str = os.getenv("AZURE_STORAGE_ACCOUNT_URL", "")
-    AZURE_STORAGE_ACCOUNT_KEY: str = os.getenv("AZURE_STORAGE_ACCOUNT_KEY", "")
-    AZURE_CONTAINER_NAME: str = os.getenv("AZURE_CONTAINER_NAME", "ci-living-docs")
+
 
 
 

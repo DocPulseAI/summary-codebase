@@ -254,10 +254,7 @@ class SummaryResponse(BaseModel):
 def health():
     """Health check endpoint for monitoring and load balancers"""
     storage_configured = bool(
-        config.AZURE_CONTAINER_NAME and (
-            config.AZURE_STORAGE_CONNECTION_STRING or
-            (config.AZURE_STORAGE_ACCOUNT_URL and config.AZURE_STORAGE_ACCOUNT_KEY)
-        )
+        config.R2_ACCOUNT_ID and config.R2_ACCESS_KEY_ID and config.R2_SECRET_ACCESS_KEY
     )
     return {
         "status": "ok",
@@ -418,8 +415,8 @@ def _upload_summary_artifacts(
             summary_path_relative += '/'
         summary_path_relative += "summary/"
     
-    # Construct full Azure URI
-    summary_bucket_uri = f"az://{config.AZURE_CONTAINER_NAME}/{summary_path_relative}"
+    # Construct full R2 URI
+    summary_bucket_uri = f"r2://{config.R2_BUCKET_NAME}/{summary_path_relative}"
     logger.info(f"Uploading summary artifacts to {summary_bucket_uri}")
     
     try:

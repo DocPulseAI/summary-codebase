@@ -75,9 +75,9 @@ class SummaryGenerator:
                 "timestamp": repo_state.timestamp
             },
             "files_changed_count": repo_state.changed_files_count,
-            "files_changed": repo_state.changed_files, # Standardized name
+            "changed_files": repo_state.changed_files, # Standardized name
             "api_endpoints": repo_state.api_endpoints,
-            "affected_modules": repo_state.affected_components, # Standardized name
+            "affected_components": repo_state.affected_components, # Standardized name
             "breaking_changes": ["Major API or architecture changes detected"] if repo_state.breaking_changes else [], # Standardized as list
             "drift_detected": repo_state.drift_detected,
             "drift_findings": repo_state.drift_findings,

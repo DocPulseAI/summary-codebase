@@ -3,7 +3,7 @@
 **Commit SHA:** `94736db8d8b83f3d8c7042ff6d6a30b7690e0935`
 **Commit Author:** unknown
 **Commit Time:** 2026-03-09T18:35:32.960504Z
-**Risk Level:** HIGH
+**Risk Level:** high
 
 ## Impact Analysis
 ### Changed Modules/Files (16)
@@ -13,119 +13,10 @@
 Detected 56 API endpoints
 
 ### Affected Components
-- @vitejs/plugin-react
-- axios
-- backend/src/app
-- backend/src/config
-- backend/src/config/database
-- backend/src/config/index
-- backend/src/docs/swagger
-- backend/src/middleware
-- backend/src/middleware/auth
-- backend/src/middleware/errorHandler
-- backend/src/middleware/rbac
-- backend/src/middleware/requestLogger
-- backend/src/middleware/validate
-- backend/src/modules/activity/Activity.model
-- backend/src/modules/activity/controllers/activity.controller
-- backend/src/modules/activity/routes/activity.routes
-- backend/src/modules/activity/services/activity.service
-- backend/src/modules/auth/controllers/auth.controller
-- backend/src/modules/auth/routes/auth.routes
-- backend/src/modules/auth/services/auth.service
-- backend/src/modules/auth/validators/auth.validator
-- backend/src/modules/comments/Comment.model
-- backend/src/modules/comments/controllers/comment.controller
-- backend/src/modules/comments/routes/comment.routes
-- backend/src/modules/comments/services/comment.service
-- backend/src/modules/comments/validators/comment.validator
-- backend/src/modules/dashboard/controllers/dashboard.controller
-- backend/src/modules/dashboard/routes/dashboard.routes
-- backend/src/modules/dashboard/services/dashboard.service
-- backend/src/modules/labels/Label.model
-- backend/src/modules/labels/controllers/label.controller
-- backend/src/modules/labels/routes/label.routes
-- backend/src/modules/labels/services/label.service
-- backend/src/modules/labels/validators/label.validator
-- backend/src/modules/notifications/Notification.model
-- backend/src/modules/notifications/controllers/notification.controller
-- backend/src/modules/notifications/repositories/notification.repository
-- backend/src/modules/notifications/routes/notification.routes
-- backend/src/modules/notifications/services/notification.service
-- backend/src/modules/notifications/validators/notification.validator
-- backend/src/modules/projects/Project.model
-- backend/src/modules/projects/controllers/project.controller
-- backend/src/modules/projects/repositories/project.repository
-- backend/src/modules/projects/routes/project.routes
-- backend/src/modules/projects/services/project.service
-- backend/src/modules/projects/validators/project.validator
-- backend/src/modules/search/controllers/search.controller
-- backend/src/modules/search/routes/search.routes
-- backend/src/modules/search/services/search.service
-- backend/src/modules/search/validators/search.validator
-- backend/src/modules/tasks/Task.model
-- backend/src/modules/tasks/controllers/task.controller
-- backend/src/modules/tasks/repositories/task.repository
-- backend/src/modules/tasks/routes/task.routes
-- backend/src/modules/tasks/services/task.service
-- backend/src/modules/tasks/validators/task.validator
-- backend/src/modules/users/User.model
-- backend/src/modules/users/controllers/user.controller
-- backend/src/modules/users/repositories/user.repository
-- backend/src/modules/users/routes/user.routes
-- backend/src/modules/users/services/user.service
-- backend/src/modules/users/validators/user.validator
-- backend/src/routes
-- backend/src/utils
-- backend/src/utils/ApiError
-- backend/src/utils/ApiResponse
-- backend/src/utils/asyncHandler
-- backend/src/utils/jwt
-- backend/src/utils/logger
-- bcryptjs
-- cors
-- dotenv
-- express
-- express-mongo-sanitize
-- express-rate-limit
-- frontend/src/App
-- frontend/src/components/auth/ProtectedRoute
-- frontend/src/components/common/Avatar
-- frontend/src/components/common/Layout
-- frontend/src/components/common/LoadingSpinner
-- frontend/src/components/common/Navbar
-- frontend/src/components/common/Sidebar
-- frontend/src/context/AuthContext
-- frontend/src/pages/AdminPage
-- frontend/src/pages/DashboardPage
-- frontend/src/pages/LoginPage
-- frontend/src/pages/ProfilePage
-- frontend/src/pages/ProjectDetailPage
-- frontend/src/pages/ProjectsPage
-- frontend/src/pages/RegisterPage
-- frontend/src/pages/TasksPage
-- frontend/src/services/api
-- frontend/src/services/authService
-- frontend/src/services/projectService
-- frontend/src/services/taskService
-- frontend/src/services/userService
-- helmet
-- joi
-- jsonwebtoken
-- mongodb-memory-server
-- mongoose
-- morgan
-- react
-- react-dom/client
-- react-router-dom
-- supertest
-- swagger-jsdoc
-- swagger-ui-express
-- vite
-- winston
+- No affected components listed.
 
 ### Risk Assessment
-Risk Level: HIGH. 16 files changed.
+Risk Level: high. 16 files changed.
 
 ## Drift Report (Detected)
 - obsolete_documentation: 56

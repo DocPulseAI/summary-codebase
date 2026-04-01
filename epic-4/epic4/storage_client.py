@@ -20,7 +20,6 @@ class StorageClient:
         self.gcs_available = False
         self.s3_available = False
         self.r2_available = False
-        self.azure_available = False
 
         try:
             from google.cloud import storage
@@ -62,30 +61,6 @@ class StorageClient:
                 logger.warning(f"Failed to initialize R2 client: {e}")
         else:
             logger.info("R2 credentials not provided - R2 support disabled")
-
-        # Initialize Azure Blob client
-        if config.AZURE_STORAGE_CONNECTION_STRING or (
-            config.AZURE_STORAGE_ACCOUNT_URL and config.AZURE_STORAGE_ACCOUNT_KEY
-        ):
-            try:
-                from azure.storage.blob import BlobServiceClient
-                if config.AZURE_STORAGE_CONNECTION_STRING:
-                    self.azure_client = BlobServiceClient.from_connection_string(
-                        config.AZURE_STORAGE_CONNECTION_STRING
-                    )
-                else:
-                    self.azure_client = BlobServiceClient(
-                        account_url=config.AZURE_STORAGE_ACCOUNT_URL,
-                        credential=config.AZURE_STORAGE_ACCOUNT_KEY
-                    )
-                self.azure_available = True
-                logger.info("Azure Blob Storage client initialized")
-            except ImportError:
-                logger.warning("azure-storage-blob not installed - Azure support disabled")
-            except Exception as e:
-                logger.warning(f"Failed to initialize Azure Blob client: {e}")
-        else:
-            logger.info("Azure credentials not provided - Azure support disabled")
 
     @retry_with_backoff
     def download_from_gcs(self, bucket_name: str, prefix: str, local_dir: str) -> int:
@@ -196,7 +171,6 @@ class StorageClient:
                 - gs://bucket/path (Google Cloud Storage)
                 - s3://bucket/path (AWS S3)
                 - r2://bucket/path (Cloudflare R2)
-                - az://container/path (Azure Blob Storage)
             local_dir: Local directory to download to
 
         Returns:
@@ -226,12 +200,8 @@ class StorageClient:
                 count = self.download_from_r2(bucket_name, prefix, local_dir)
                 logger.info(f"Downloaded {count} files from Cloudflare R2")
                 return True
-            elif scheme in ('az', 'azure'):
-                count = self.download_from_azure(bucket_name, prefix, local_dir)
-                logger.info(f"Downloaded {count} files from Azure Blob Storage")
-                return True
             else:
-                logger.error(f"Unsupported storage scheme: {scheme}. Supported: gs://, s3://, r2://, az://")
+                logger.error(f"Unsupported storage scheme: {scheme}. Supported: gs://, s3://, r2://")
                 return False
 
         except Exception as e:
@@ -291,46 +261,6 @@ class StorageClient:
         logger.info(f"Uploaded {local_path} to gs://{bucket_name}/{key}")
         return True
 
-    @retry_with_backoff
-    def download_from_azure(self, container_name: str, prefix: str, local_dir: str) -> int:
-        """Download all files from Azure Blob container path to local directory."""
-        if not self.azure_available:
-            raise RuntimeError("Azure Blob client not available")
-
-        container_client = self.azure_client.get_container_client(container_name)
-        blobs = container_client.list_blobs(name_starts_with=prefix)
-
-        count = 0
-        for blob in blobs:
-            blob_name = blob.name
-            if blob_name.endswith('/'):
-                continue
-
-            rel_path = blob_name[len(prefix):].lstrip('/')
-            local_path = os.path.join(local_dir, rel_path)
-            os.makedirs(os.path.dirname(local_path), exist_ok=True)
-
-            with open(local_path, 'wb') as f:
-                data = container_client.get_blob_client(blob_name).download_blob().readall()
-                f.write(data)
-
-            logger.info(f"Downloaded {blob_name} to {local_path}")
-            count += 1
-
-        return count
-
-    @retry_with_backoff
-    def upload_to_azure(self, local_path: str, container_name: str, key: str) -> bool:
-        """Upload a file to Azure Blob container."""
-        if not self.azure_available:
-            raise RuntimeError("Azure Blob client not available")
-
-        container_client = self.azure_client.get_container_client(container_name)
-        with open(local_path, 'rb') as data:
-            container_client.get_blob_client(key).upload_blob(data, overwrite=True)
-        logger.info(f"Uploaded {local_path} to az://{container_name}/{key}")
-        return True
-
     def upload_file(self, local_path: str, bucket_path_prefix: str) -> bool:
         """
         Upload a file to cloud storage.
@@ -372,8 +302,6 @@ class StorageClient:
                 return self.upload_to_s3(local_path, bucket_name, key)
             elif scheme == 'r2':
                 return self.upload_to_r2(local_path, bucket_name, key)
-            elif scheme in ('az', 'azure'):
-                return self.upload_to_azure(local_path, bucket_name, key)
             else:
                 logger.error(f"Unsupported storage scheme: {scheme}")
                 return False
