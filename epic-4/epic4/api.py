@@ -202,6 +202,16 @@ class GenerateSummaryRequest(BaseModel):
         description="Project ID (UUID) used for storage path construction",
         example="a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6"
     )
+    trace_id: Optional[str] = Field(
+        None,
+        description="Cross-service trace identifier for correlating EPIC pipeline logs",
+        example="6bcf5304-3cc4-4b1b-84f4-03a4b2538f43",
+    )
+    run_id: Optional[str] = Field(
+        None,
+        description="Optional backend pipeline run identifier",
+        example="f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    )
     
     class Config:
         json_schema_extra = {
@@ -393,11 +403,15 @@ def api_generate_summary(req: GenerateSummaryRequest, request: Request):
         import tempfile
         import json
         request_id = _request_id_from_request(request)
+        trace_id = req.trace_id or request_id
+        run_id = req.run_id
         log_event(
             logging.INFO,
             "EPIC4_GENERATE_REQUEST",
             "Received summary generation request",
             request_id=request_id,
+            trace_id=trace_id,
+            run_id=run_id,
             commit_sha=req.commit_sha,
             project_id=req.project_id,
             has_doc_snapshot=bool(req.doc_snapshot),
@@ -432,12 +446,16 @@ def api_generate_summary(req: GenerateSummaryRequest, request: Request):
                 req.commit_sha,
                 req.project_id,
                 request_id=request_id,
+                trace_id=trace_id,
+                run_id=run_id,
             )
             log_event(
                 logging.INFO,
                 "EPIC4_GENERATE_SUCCESS",
                 "Summary generation completed",
                 request_id=request_id,
+                trace_id=trace_id,
+                run_id=run_id,
                 commit_sha=req.commit_sha,
                 uploaded=upload_result.get("uploaded"),
                 bucket_path=upload_result.get("bucket_path"),
@@ -454,6 +472,8 @@ def api_generate_summary(req: GenerateSummaryRequest, request: Request):
             "EPIC4_GENERATE_FAILED",
             "Summary generation failed",
             request_id=_request_id_from_request(request),
+            trace_id=req.trace_id if req else None,
+            run_id=req.run_id if req else None,
             error=truncate_text(str(e)),
         )
         logger.exception("EPIC4 summary generation stack trace")
@@ -469,6 +489,8 @@ def _upload_summary_artifacts(
     commit_sha: str,
     project_id_override: Optional[str] = None,
     request_id: Optional[str] = None,
+    trace_id: Optional[str] = None,
+    run_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Upload summary artifacts to cloud storage.
@@ -486,6 +508,8 @@ def _upload_summary_artifacts(
             "EPIC4_UPLOAD_PATH_OVERRIDE",
             "Using project_id override for summary path",
             request_id=request_id,
+            trace_id=trace_id,
+            run_id=run_id,
             summary_path_relative=summary_path_relative,
         )
     else:
@@ -504,6 +528,8 @@ def _upload_summary_artifacts(
                 "EPIC4_UPLOAD_SKIPPED",
                 "Skipping summary upload because docs_bucket_path is missing",
                 request_id=request_id,
+                trace_id=trace_id,
+                run_id=run_id,
             )
             return {
                 "uploaded": False,
@@ -525,6 +551,8 @@ def _upload_summary_artifacts(
         "EPIC4_UPLOAD_START",
         "Uploading summary artifacts",
         request_id=request_id,
+        trace_id=trace_id,
+        run_id=run_id,
         summary_bucket_uri=summary_bucket_uri,
     )
     
@@ -539,6 +567,8 @@ def _upload_summary_artifacts(
                 "EPIC4_UPLOAD_SUCCESS",
                 "Summary artifacts uploaded successfully",
                 request_id=request_id,
+                trace_id=trace_id,
+                run_id=run_id,
                 summary_path_relative=summary_path_relative,
             )
             return {
@@ -554,6 +584,8 @@ def _upload_summary_artifacts(
                 "EPIC4_UPLOAD_FAILED",
                 "Summary artifact upload failed",
                 request_id=request_id,
+                trace_id=trace_id,
+                run_id=run_id,
                 error=error_msg,
                 summary_path_relative=summary_path_relative,
             )
@@ -570,6 +602,8 @@ def _upload_summary_artifacts(
             "EPIC4_UPLOAD_EXCEPTION",
             "Summary upload raised exception",
             request_id=request_id,
+            trace_id=trace_id,
+            run_id=run_id,
             error=truncate_text(error_msg),
             summary_path_relative=summary_path_relative,
         )
