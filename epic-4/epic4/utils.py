@@ -2,9 +2,25 @@ import logging
 import json
 import sys
 import time
+from datetime import datetime, timezone
+from typing import Any, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from epic4.config import config
 import os
+
+
+def _int_env(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+LOG_BODY_MAX_CHARS = max(200, _int_env("EPIC4_LOG_BODY_MAX_CHARS", 1200))
+
 
 class JsonFormatter(logging.Formatter):
     def format(self, record):
@@ -15,6 +31,14 @@ class JsonFormatter(logging.Formatter):
             "module": record.module,
             "function": record.funcName,
         }
+        if hasattr(record, "event_id"):
+            log_record["event_id"] = record.event_id
+        if hasattr(record, "request_id"):
+            log_record["request_id"] = record.request_id
+        if hasattr(record, "service"):
+            log_record["service"] = record.service
+        if hasattr(record, "payload") and isinstance(record.payload, dict):
+            log_record.update(record.payload)
         if record.exc_info:
             log_record["exception"] = self.formatException(record.exc_info)
         return json.dumps(log_record)
@@ -22,6 +46,9 @@ class JsonFormatter(logging.Formatter):
 def setup_logging():
     logger = logging.getLogger("epic4")
     logger.setLevel(logging.INFO)
+    logger.propagate = False
+    if logger.handlers:
+        return logger
     
     # Console handler
     handler = logging.StreamHandler(sys.stdout)
@@ -50,3 +77,25 @@ def get_retry_decorator():
         wait=wait_exponential(multiplier=1, min=2, max=10),
         reraise=True
     )
+
+
+def truncate_text(value: Optional[str], max_chars: int = LOG_BODY_MAX_CHARS) -> str:
+    text = str(value or "").strip()
+    if len(text) <= max_chars:
+        return text
+    return f"{text[:max_chars]}...(truncated)"
+
+
+def log_event(level: int, event_id: str, message: str, request_id: Optional[str] = None, **fields: Any) -> None:
+    payload = {
+        "ts": datetime.now(timezone.utc).isoformat(),
+        "payload": fields,
+        "service": "epic4",
+    }
+    extra = {
+        "event_id": event_id,
+        "request_id": request_id or "n/a",
+        "service": "epic4",
+        "payload": payload["payload"],
+    }
+    logger.log(level, message, extra=extra)

@@ -315,6 +315,33 @@ Solution: Verify impact_report.json structure matches expected format
 - No sensitive data in output files
 - Proper error handling without credential exposure
 
+## Observability
+
+EPIC-4 now emits structured JSON logs for HTTP and upload stages.
+
+- Request lifecycle events:
+  - `EPIC4_HTTP_REQUEST_START`
+  - `EPIC4_HTTP_REQUEST_END`
+  - `EPIC4_HTTP_REQUEST_EXCEPTION`
+- Summary generation events:
+  - `EPIC4_GENERATE_REQUEST`
+  - `EPIC4_GENERATE_SUCCESS`
+  - `EPIC4_GENERATE_FAILED`
+- Upload events:
+  - `EPIC4_UPLOAD_START`
+  - `EPIC4_UPLOAD_SUCCESS`
+  - `EPIC4_UPLOAD_FAILED`
+  - `EPIC4_UPLOAD_EXCEPTION`
+  - `EPIC4_UPLOAD_SKIPPED`
+
+Each response includes `X-Request-Id` so you can correlate upstream backend logs with EPIC-4 processing.
+
+### Logging Controls
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `EPIC4_LOG_BODY_MAX_CHARS` | Max error/body preview length logged for failures | `1200` |
+
 ## Performance
 
 - **Execution Time**: ~3 seconds (including cloud upload)

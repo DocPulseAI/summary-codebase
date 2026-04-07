@@ -1,11 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Dict, List, Any, Optional
 from epic4.summary import generate_summary, SummaryGenerator
 from epic4.storage_client import StorageClient
 from epic4.config import config
-from epic4.utils import logger
+from epic4.utils import logger, log_event, truncate_text
 import os
+import logging
+import time
+from uuid import uuid4
 
 # Comprehensive API metadata for Swagger documentation
 app = FastAPI(
@@ -50,6 +53,57 @@ Production-grade service for generating deterministic change summaries from impa
         }
     ]
 )
+
+
+def _request_id_from_request(http_request: Request) -> str:
+    request_id = getattr(http_request.state, "request_id", None)
+    if isinstance(request_id, str) and request_id:
+        return request_id
+    return "unknown"
+
+
+@app.middleware("http")
+async def request_logging_middleware(request: Request, call_next):
+    request_id = request.headers.get("X-Request-Id") or str(uuid4())
+    request.state.request_id = request_id
+    started_at = time.perf_counter()
+    log_event(
+        logging.INFO,
+        "EPIC4_HTTP_REQUEST_START",
+        "Incoming HTTP request",
+        request_id=request_id,
+        method=request.method,
+        path=request.url.path,
+        client_host=request.client.host if request.client else None,
+    )
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
+        log_event(
+            logging.ERROR,
+            "EPIC4_HTTP_REQUEST_EXCEPTION",
+            "Unhandled HTTP request exception",
+            request_id=request_id,
+            method=request.method,
+            path=request.url.path,
+            duration_ms=duration_ms,
+            error=str(exc),
+        )
+        raise
+    duration_ms = round((time.perf_counter() - started_at) * 1000, 2)
+    response.headers["X-Request-Id"] = request_id
+    log_event(
+        logging.INFO,
+        "EPIC4_HTTP_REQUEST_END",
+        "Completed HTTP request",
+        request_id=request_id,
+        method=request.method,
+        path=request.url.path,
+        status_code=response.status_code,
+        duration_ms=duration_ms,
+    )
+    return response
 
 # ==================== Pydantic Models with Examples ====================
 
@@ -256,6 +310,12 @@ def health():
     storage_configured = bool(
         config.R2_ACCOUNT_ID and config.R2_ACCESS_KEY_ID and config.R2_SECRET_ACCESS_KEY
     )
+    log_event(
+        logging.INFO,
+        "EPIC4_HEALTH_CHECK",
+        "Health check requested",
+        storage_configured=storage_configured,
+    )
     return {
         "status": "ok",
         "storage_configured": storage_configured
@@ -321,7 +381,7 @@ def health():
         }
     }
 )
-def api_generate_summary(req: GenerateSummaryRequest):
+def api_generate_summary(req: GenerateSummaryRequest, request: Request):
     """
     Generate a comprehensive change summary from impact and drift reports,
     then upload artifacts to cloud storage.
@@ -332,6 +392,16 @@ def api_generate_summary(req: GenerateSummaryRequest):
     try:
         import tempfile
         import json
+        request_id = _request_id_from_request(request)
+        log_event(
+            logging.INFO,
+            "EPIC4_GENERATE_REQUEST",
+            "Received summary generation request",
+            request_id=request_id,
+            commit_sha=req.commit_sha,
+            project_id=req.project_id,
+            has_doc_snapshot=bool(req.doc_snapshot),
+        )
 
         with tempfile.TemporaryDirectory() as tmpdir:
             impact_path = os.path.join(tmpdir, "impact.json")
@@ -356,7 +426,21 @@ def api_generate_summary(req: GenerateSummaryRequest):
 
             # --- Upload to cloud storage ---
             upload_result = _upload_summary_artifacts(
-                output_path_md, output_path_json, req.doc_snapshot, req.commit_sha, req.project_id
+                output_path_md,
+                output_path_json,
+                req.doc_snapshot,
+                req.commit_sha,
+                req.project_id,
+                request_id=request_id,
+            )
+            log_event(
+                logging.INFO,
+                "EPIC4_GENERATE_SUCCESS",
+                "Summary generation completed",
+                request_id=request_id,
+                commit_sha=req.commit_sha,
+                uploaded=upload_result.get("uploaded"),
+                bucket_path=upload_result.get("bucket_path"),
             )
 
             return {
@@ -365,7 +449,14 @@ def api_generate_summary(req: GenerateSummaryRequest):
             }
 
     except Exception as e:
-        logger.error(f"Error generating summary: {e}")
+        log_event(
+            logging.ERROR,
+            "EPIC4_GENERATE_FAILED",
+            "Summary generation failed",
+            request_id=_request_id_from_request(request),
+            error=truncate_text(str(e)),
+        )
+        logger.exception("EPIC4 summary generation stack trace")
         raise HTTPException(
             status_code=500,
             detail=f"Summary generation failed: {str(e)}"
@@ -376,7 +467,8 @@ def _upload_summary_artifacts(
     summary_json_path: str,
     doc_snapshot: Dict[str, Any],
     commit_sha: str,
-    project_id_override: Optional[str] = None
+    project_id_override: Optional[str] = None,
+    request_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Upload summary artifacts to cloud storage.
@@ -389,7 +481,13 @@ def _upload_summary_artifacts(
     if project_id_override:
         # Construct path using backend-provided project_id and commit
         summary_path_relative = f"{project_id_override}/{commit_sha}/docs/summary/"
-        logger.info(f"Using project_id_override for path: {summary_path_relative}")
+        log_event(
+            logging.INFO,
+            "EPIC4_UPLOAD_PATH_OVERRIDE",
+            "Using project_id override for summary path",
+            request_id=request_id,
+            summary_path_relative=summary_path_relative,
+        )
     else:
         # Fallback to doc_snapshot or config
         docs_bucket_path = None
@@ -401,7 +499,12 @@ def _upload_summary_artifacts(
             docs_bucket_path = config.DOCS_BUCKET_PATH
         
         if not docs_bucket_path:
-            logger.info("No docs_bucket_path available — skipping cloud upload")
+            log_event(
+                logging.INFO,
+                "EPIC4_UPLOAD_SKIPPED",
+                "Skipping summary upload because docs_bucket_path is missing",
+                request_id=request_id,
+            )
             return {
                 "uploaded": False,
                 "bucket_path": None,
@@ -417,7 +520,13 @@ def _upload_summary_artifacts(
     
     # Construct full R2 URI
     summary_bucket_uri = f"r2://{config.R2_BUCKET_NAME}/{summary_path_relative}"
-    logger.info(f"Uploading summary artifacts to {summary_bucket_uri}")
+    log_event(
+        logging.INFO,
+        "EPIC4_UPLOAD_START",
+        "Uploading summary artifacts",
+        request_id=request_id,
+        summary_bucket_uri=summary_bucket_uri,
+    )
     
     try:
         storage_client = StorageClient()
@@ -425,7 +534,13 @@ def _upload_summary_artifacts(
         upload_json = storage_client.upload_file(summary_json_path, summary_bucket_uri)
         
         if upload_md and upload_json:
-            logger.info("Summary artifacts uploaded successfully")
+            log_event(
+                logging.INFO,
+                "EPIC4_UPLOAD_SUCCESS",
+                "Summary artifacts uploaded successfully",
+                request_id=request_id,
+                summary_path_relative=summary_path_relative,
+            )
             return {
                 "uploaded": True,
                 "bucket_path": summary_path_relative,
@@ -434,7 +549,14 @@ def _upload_summary_artifacts(
             }
         else:
             error_msg = "One or more artifact uploads failed"
-            logger.error(error_msg)
+            log_event(
+                logging.ERROR,
+                "EPIC4_UPLOAD_FAILED",
+                "Summary artifact upload failed",
+                request_id=request_id,
+                error=error_msg,
+                summary_path_relative=summary_path_relative,
+            )
             return {
                 "uploaded": False,
                 "bucket_path": summary_path_relative,
@@ -443,7 +565,14 @@ def _upload_summary_artifacts(
             }
     except Exception as e:
         error_msg = f"Upload failed: {str(e)}"
-        logger.error(error_msg)
+        log_event(
+            logging.ERROR,
+            "EPIC4_UPLOAD_EXCEPTION",
+            "Summary upload raised exception",
+            request_id=request_id,
+            error=truncate_text(error_msg),
+            summary_path_relative=summary_path_relative,
+        )
         return {
             "uploaded": False,
             "bucket_path": summary_path_relative,
