@@ -212,6 +212,10 @@ class GenerateSummaryRequest(BaseModel):
         description="Optional backend pipeline run identifier",
         example="f47ac10b-58cc-4372-a567-0e02b2c3d479",
     )
+    ref_name: Optional[str] = Field(None, description="Branch/ref name", example="main")
+    ref_type: Optional[str] = Field(None, description="Ref type", example="default_branch")
+    is_preview: Optional[bool] = Field(False, description="Whether this is a preview run")
+    baseline_ref: Optional[str] = Field(None, description="Baseline reference key", example="default")
     
     class Config:
         json_schema_extra = {
@@ -270,6 +274,10 @@ class SummaryResponse(BaseModel):
     upload: Optional[UploadResult] = Field(
         None,
         description="Cloud storage upload result (null if storage not configured)"
+    )
+    pipeline_metadata: Optional[Dict[str, Any]] = Field(
+        None,
+        description="Cross-service metadata envelope"
     )
     
     class Config:
@@ -463,7 +471,18 @@ def api_generate_summary(req: GenerateSummaryRequest, request: Request):
 
             return {
                 "summary_markdown": content,
-                "upload": upload_result
+                "upload": upload_result,
+                "pipeline_metadata": {
+                    "run_id": req.run_id,
+                    "ref_name": req.ref_name,
+                    "ref_type": req.ref_type,
+                    "is_preview": bool(req.is_preview),
+                    "baseline_ref": req.baseline_ref,
+                    "project_id": req.project_id,
+                    "commit_sha": req.commit_sha,
+                    "view_type": "preview" if req.is_preview else "published",
+                    "published_status": "preview" if req.is_preview else "published_candidate",
+                },
             }
 
     except Exception as e:
