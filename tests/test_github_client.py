@@ -6,7 +6,7 @@ class TestGitHubClient(unittest.TestCase):
     def setUp(self):
         self.client = GitHubClient("owner", "repo", "token")
 
-    @patch("epic4.github_client.requests.post")
+    @patch("src.github_client.requests.post")
     def test_create_pr(self, mock_post):
         mock_resp = MagicMock()
         mock_resp.json.return_value = {"number": 123}
@@ -19,7 +19,7 @@ class TestGitHubClient(unittest.TestCase):
         args, kwargs = mock_post.call_args
         self.assertIn("Title", kwargs["json"]["title"])
 
-    @patch("epic4.github_client.requests.get")
+    @patch("src.github_client.requests.get")
     def test_find_open_pr(self, mock_get):
         mock_resp = MagicMock()
         mock_resp.json.return_value = [{"number": 123}]
@@ -29,7 +29,7 @@ class TestGitHubClient(unittest.TestCase):
         pr = self.client.find_open_pr("head", "base")
         self.assertEqual(pr["number"], 123)
 
-    @patch("epic4.github_client.subprocess.run")
+    @patch("src.github_client.subprocess.run")
     def test_checkout_and_push(self, mock_run):
         mock_run.return_value.returncode = 0
         mock_run.return_value.stdout = " M file" # changes detected
