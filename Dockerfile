@@ -10,12 +10,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY epic-4/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy source code and install the package
-COPY epic-4/ .
-RUN pip install .
 
 # Final stage
 FROM python:3.11-slim
@@ -30,7 +26,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 # Copy source code for runtime reference
-COPY epic-4/epic4/ ./epic4/
+COPY src/ ./src/
 COPY application.py ./application.py
 
 # Create artifacts directory structure required by the app and adjust ownership
