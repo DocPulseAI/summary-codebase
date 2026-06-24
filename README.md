@@ -54,7 +54,7 @@
 |---|---|
 | **Summary Compilation** | Compile code severity, modified symbols, routes, breaking changes, and drift alerts into a single unified change log. |
 | **Multi-Cloud Storage** | Support multiple storage providers (Cloudflare R2, AWS S3, Google Cloud Storage) for artifact persistence. |
-| **Queue Integration** | Support async processing of documentation updates through Azure Service Bus events. |
+| **Queue Integration** | Support async processing of documentation updates through RabbitMQ events. |
 | **Report Formatting** | Generate both Markdown (`summary.md`) and structured JSON (`summary.json`) outputs for different consumers. |
 
 ---
@@ -66,7 +66,7 @@
 ```mermaid
 graph TD
     Backend[docpulse-backend] -->|HTTP POST /generate-summary| API[summary-codebase FastAPI]
-    Bus[Azure Service Bus: epic4-drift-detect] -->|Queue Message| Worker[summary-codebase Worker]
+    Bus[RabbitMQ Queue: epic4-drift-detect] -->|Queue Message| Worker[summary-codebase Worker]
 
     API -->|Triggers Summary| Engine[Summary Generator Engine]
     Worker -->|Triggers Summary| Engine
@@ -279,7 +279,7 @@ graph TD
 
 ## Deployment
 
-Deployable as a web service using **Render** or on **Azure Container Apps**.
+Deployable as a web service using **Render** or any Docker-compatible hosting platform.
 
 - **Multi-Cloud Storage**: The `StorageClient` class supports Google Cloud Storage (`google-cloud-storage`) and AWS S3/R2 (`boto3`).
 - **Health Check**: Endpoint `/health` reports service readiness and cloud storage availability.
